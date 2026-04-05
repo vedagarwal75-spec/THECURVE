@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}The Curve{% endblock %} — Economic Intelligence</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+            sans: ['"Inter"', 'system-ui', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            curve: {
+              blue:  '#38bdf8',
+              green: '#34d399',
+              red:   '#f87171',
+              gold:  '#fbbf24',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+            'fade-in': 'fadeIn 0.4s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%':   { opacity: '0', transform: 'translateY(8px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+
+  <style>
+    :root {
+      --glass-bg:     rgba(15, 23, 42, 0.65);
+      --glass-border: rgba(56, 189, 248, 0.12);
+      --glass-blur:   12px;
+      --glow-blue:    0 0 20px rgba(56, 189, 248, 0.25);
+      --glow-green:   0 0 20px rgba(52, 211, 153, 0.20);
+    }
+    html { font-family: 'Inter', sans-serif; }
+    body {
+      background-color: #020617;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,0.06) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230f172a' fill-opacity='0.8'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+    }
+    .glass-hover:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: var(--glow-blue);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .nav-link {
+      position: relative;
+      transition: color 0.2s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 2px;
+      background: #38bdf8;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after { width: 100%; }
+    .nav-link.active { color: #38bdf8; }
+
+    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: rgba(15,23,42,0.3); }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.3); border-radius: 2px; }
+
+    /* Chart.js global overrides */
+    canvas { max-width: 100%; }
+
+    /* Markdown rendered content */
+    .md-content h2 { font-size:1.15rem; font-weight:700; color:#38bdf8; margin:1.1rem 0 0.4rem; font-family:'Space Grotesk',sans-serif; }
+    .md-content h3 { font-size:0.95rem; font-weight:600; color:#7dd3fc; margin:0.8rem 0 0.3rem; }
+    .md-content p  { color:#cbd5e1; line-height:1.7; margin-bottom:0.6rem; font-size:0.92rem; }
+    .md-content strong { color:#f1f5f9; font-weight:600; }
+    .md-content em { color:#94a3b8; }
+    .md-content ul { list-style:disc; padding-left:1.4rem; color:#cbd5e1; font-size:0.9rem; margin-bottom:0.5rem; }
+    .md-content li { margin-bottom:0.25rem; line-height:1.6; }
+    .md-content blockquote { border-left:3px solid #38bdf8; padding-left:1rem; color:#94a3b8; font-style:italic; margin:0.8rem 0; background:rgba(56,189,248,0.05); border-radius:0 4px 4px 0; padding:0.6rem 1rem; }
+    .md-content code { font-family:'JetBrains Mono',monospace; background:rgba(56,189,248,0.1); color:#38bdf8; padding:2px 6px; border-radius:4px; font-size:0.83rem; }
+    .md-content pre { background:rgba(2,6,23,0.8); border:1px solid rgba(56,189,248,0.15); border-radius:8px; padding:1rem; overflow-x:auto; margin:0.8rem 0; }
+    .md-content pre code { background:none; padding:0; }
+
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+  </style>
+
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-slate-950 text-slate-200">
+
+  <nav class="sticky top-0 z-50 glass border-b border-sky-900/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14">
+
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="w-7 h-7 rounded bg-sky-400/10 border border-sky-400/30 flex items-center justify-center group-hover:bg-sky-400/20 transition-colors">
+            <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <span class="font-display font-700 text-base tracking-tight">
+            <span class="text-sky-400">THE</span><span class="text-slate-100"> CURVE</span>
+          </span>
+        </a>
+
+        <div class="hidden md:flex items-center gap-1">
+          <a href="/"          class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/' %}active{% endif %}">Dashboard</a>
+          <a href="/ai"        class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/ai' %}active{% endif %}">AI Tutor</a>
+          <a href="/market"    class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/market' %}active{% endif %}">Markets</a>
+          <a href="/simulation" class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/simulation' %}active{% endif %}">Econ Lab</a>
+          <a href="/news"      class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/news' %}active{% endif %}">News</a>
+        </div>
+
+        <div class="flex items-center gap-2 font-mono text-xs text-slate-500">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-slow"></span>
+          <span class="hidden sm:inline">LIVE</span>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="border-t border-slate-800/50 mt-16 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="text-xs text-slate-600 font-mono">THE CURVE — Economic Intelligence Platform</p>
+      <p class="text-xs text-slate-700 font-mono">Powered by Gemini 1.5 Flash · World Bank API · Alpha Vantage</p>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
