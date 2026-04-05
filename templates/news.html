@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}News Terminal{% endblock %}
+
+{% block head %}
+<style>
+  .news-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .news-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(56, 189, 248, 0.25);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(56,189,248,0.08);
+  }
+
+  .badge-bullish  { background: rgba(52,211,153,0.1);  color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+  .badge-bearish  { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+  .badge-neutral  { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
+
+  .skeleton {
+    background: linear-gradient(90deg, #1e293b 25%, #273549 50%, #1e293b 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .dot-live {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    animation: pulse-live 2s infinite;
+    box-shadow: 0 0 0 0 rgba(52,211,153,0.6);
+  }
+  @keyframes pulse-live {
+    0%  { box-shadow: 0 0 0 0 rgba(52,211,153,0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(52,211,153,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header + Controls -->
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+  <div>
+    <div class="flex items-center gap-2 mb-1">
+      <span class="w-1 h-5 rounded-full bg-amber-400"></span>
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Module 04</p>
+    </div>
+    <h1 class="font-display text-2xl font-bold text-slate-100">Macro News Terminal</h1>
+    <p class="text-slate-400 text-sm mt-1">Real-time macroeconomic news with AI sentiment classification</p>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <!-- Sentiment Filter -->
+    <div class="flex items-center gap-1.5 glass rounded-xl p-1 border border-slate-700/30">
+      <button class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-mono text-slate-100 bg-slate-700/60 transition-colors" data-filter="all">All</button>
+      <button class="filter-btn px-3 py-1.5 rounded-lg text-xs font-mono text-emerald-400 hover:bg-emerald-400/10 transition-colors" data-filter="Bullish">Bullish</button>
+      <button class="filter-btn px-3 py-1.5 rounded-lg text-xs font-mono text-red-400 hover:bg-red-400/10 transition-colors" data-filter="Bearish">Bearish</button>
+      <button class="filter-btn px-3 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:bg-slate-700/40 transition-colors" data-filter="Neutral">Neutral</button>
+    </div>
+
+    <!-- Refresh Button -->
+    <button id="refreshBtn" class="flex items-center gap-2 px-3 py-2 rounded-xl glass border border-slate-700/50 text-slate-400 text-xs font-mono hover:text-sky-400 hover:border-sky-500/40 transition-colors">
+      <svg id="refreshIcon" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Refresh
+    </button>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="flex items-center justify-between mb-5 glass rounded-xl px-4 py-2.5 border border-slate-700/20">
+  <div class="flex items-center gap-3">
+    <div class="dot-live"></div>
+    <span class="text-xs font-mono text-slate-400" id="statusText">Loading news feed...</span>
+  </div>
+  <div class="flex items-center gap-4 text-xs font-mono">
+    <span class="text-slate-600" id="lastUpdated"></span>
+    <div class="flex items-center gap-2">
+      <span class="text-emerald-400" id="bullishCount">●  0</span>
+      <span class="text-red-400" id="bearishCount">●  0</span>
+      <span class="text-slate-500" id="neutralCount">●  0</span>
+    </div>
+  </div>
+</div>
+
+<!-- News Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="newsGrid">
+  <!-- Skeletons shown on load -->
+  {% for i in range(9) %}
+  <div class="glass rounded-xl p-5 border border-slate-700/20 skeleton-card">
+    <div class="skeleton h-3 w-16 mb-3"></div>
+    <div class="skeleton h-4 w-full mb-2"></div>
+    <div class="skeleton h-4 w-5/6 mb-4"></div>
+    <div class="skeleton h-3 w-full mb-1.5"></div>
+    <div class="skeleton h-3 w-4/5 mb-1.5"></div>
+    <div class="skeleton h-3 w-3/5"></div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Empty State (hidden) -->
+<div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-center">
+  <svg class="w-12 h-12 text-slate-700 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z"/></svg>
+  <p class="text-slate-500 font-mono text-sm">No articles match this filter.</p>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let allArticles = [];
+  let currentFilter = 'all';
+
+  // ── Format Time ──────────────────────────────────────────
+  function formatTime(timeStr) {
+    if (!timeStr || timeStr.length < 8) return '';
+    try {
+      // Format: YYYYMMDDTHHMMSS
+      const year  = timeStr.substring(0, 4);
+      const month = timeStr.substring(4, 6);
+      const day   = timeStr.substring(6, 8);
+      const hour  = timeStr.substring(9, 11);
+      const min   = timeStr.substring(11, 13);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${day} ${months[parseInt(month)-1]} ${year}, ${hour}:${min}`;
+    } catch {
+      return timeStr;
+    }
+  }
+
+  // ── Render Cards ─────────────────────────────────────────
+  function renderCards(articles) {
+    const grid     = document.getElementById('newsGrid');
+    const empty    = document.getElementById('emptyState');
+
+    if (!articles.length) {
+      grid.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    grid.innerHTML = articles.map((a, i) => {
+      const sentiment  = a.sentiment || 'Neutral';
+      const badgeClass = `badge-${sentiment.toLowerCase()}`;
+      const badgeIcon  = sentiment === 'Bullish' ? '▲' : sentiment === 'Bearish' ? '▼' : '■';
+      const delay      = (i % 9) * 0.04;
+
+      return `
+        <article class="glass news-card rounded-xl p-5 border border-slate-700/20 flex flex-col gap-3 animate-fade-in"
+                 style="animation-delay:${delay}s"
+                 data-sentiment="${sentiment}">
+
+          <!-- Header: Badge + Source + Time -->
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span class="${badgeClass} px-2 py-0.5 rounded-full text-xs font-mono font-semibold">
+              ${badgeIcon} ${sentiment}
+            </span>
+            <div class="text-right">
+              <span class="text-xs font-mono text-slate-500">${a.source}</span>
+              ${a.time ? `<p class="text-xs text-slate-700 font-mono">${formatTime(a.time)}</p>` : ''}
+            </div>
+          </div>
+
+          <!-- Title -->
+          <h3 class="text-sm font-semibold text-slate-100 leading-snug line-clamp-3 group-hover:text-sky-300">
+            ${escapeHtml(a.title)}
+          </h3>
+
+          <!-- Summary -->
+          <p class="text-xs text-slate-400 leading-relaxed flex-1 line-clamp-4">
+            ${escapeHtml(a.summary)}
+          </p>
+
+          <!-- Footer: Read More -->
+          ${a.url && a.url !== '#' ? `
+            <a href="${a.url}" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1.5 text-xs font-mono text-sky-500 hover:text-sky-300 transition-colors mt-auto">
+              Read full article
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </a>
+          ` : `<span class="text-xs font-mono text-slate-700 mt-auto">Preview only</span>`}
+        </article>`;
+    }).join('');
+  }
+
+  // ── XSS Guard ────────────────────────────────────────────
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // ── Apply Filter ─────────────────────────────────────────
+  function applyFilter(filter) {
+    currentFilter = filter;
+    const filtered = filter === 'all'
+      ? allArticles
+      : allArticles.filter(a => a.sentiment === filter);
+    renderCards(filtered);
+  }
+
+  // ── Update Counts ────────────────────────────────────────
+  function updateCounts(articles) {
+    const bullish = articles.filter(a => a.sentiment === 'Bullish').length;
+    const bearish = articles.filter(a => a.sentiment === 'Bearish').length;
+    const neutral = articles.filter(a => a.sentiment === 'Neutral').length;
+    document.getElementById('bullishCount').textContent = `● ${bullish} Bullish`;
+    document.getElementById('bearishCount').textContent = `● ${bearish} Bearish`;
+    document.getElementById('neutralCount').textContent = `● ${neutral} Neutral`;
+  }
+
+  // ── Fetch News ───────────────────────────────────────────
+  async function fetchNews() {
+    const refreshBtn  = document.getElementById('refreshBtn');
+    const refreshIcon = document.getElementById('refreshIcon');
+    const statusText  = document.getElementById('statusText');
+    const lastUpdated = document.getElementById('lastUpdated');
+
+    refreshBtn.disabled = true;
+    refreshIcon.classList.add('animate-spin');
+    statusText.textContent = 'Fetching latest data...';
+
+    try {
+      const response = await fetch('/api/news');
+      if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+
+      const articles = await response.json();
+      allArticles = articles;
+
+      renderCards(currentFilter === 'all' ? articles : articles.filter(a => a.sentiment === currentFilter));
+      updateCounts(articles);
+
+      statusText.textContent = `${articles.length} articles loaded`;
+      lastUpdated.textContent = `Updated: ${new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' })} IST`;
+
+    } catch (err) {
+      console.error('News fetch error:', err);
+      statusText.textContent = `Error: ${err.message}`;
+      document.getElementById('newsGrid').innerHTML = `
+        <div class="col-span-full flex flex-col items-center justify-center py-16 gap-3">
+          <svg class="w-10 h-10 text-red-400/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <p class="text-sm text-red-400/70 font-mono">Failed to load news. Please retry.</p>
+          <button onclick="fetchNews()" class="text-xs text-sky-400 font-mono hover:underline">↺ Retry</button>
+        </div>`;
+    } finally {
+      refreshBtn.disabled = false;
+      refreshIcon.classList.remove('animate-spin');
+    }
+  }
+
+  // ── Filter Buttons ───────────────────────────────────────
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('active', 'bg-slate-700/60', 'text-slate-100');
+        b.classList.add('text-slate-400');
+      });
+      // Recolor properly
+      this.classList.add('active', 'bg-slate-700/60', 'text-slate-100');
+      this.classList.remove('text-slate-400', 'text-emerald-400', 'text-red-400');
+      applyFilter(this.dataset.filter);
+    });
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', fetchNews);
+
+  // ── Init ─────────────────────────────────────────────────
+  window.addEventListener('load', fetchNews);
+</script>
+{% endblock %}

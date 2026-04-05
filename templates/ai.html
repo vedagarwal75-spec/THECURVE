@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+{% block title %}AI Tutor{% endblock %}
+
+{% block head %}
+<style>
+  .chat-bubble-user {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    border-radius: 16px 16px 4px 16px;
+  }
+  .chat-bubble-ai {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 16px 16px 16px 4px;
+  }
+  .chat-bubble-error {
+    background: rgba(239, 68, 68, 0.07);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 16px 16px 16px 4px;
+  }
+  #chatInput {
+    resize: none;
+    min-height: 44px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    background: #38bdf8;
+    border-radius: 50%;
+    display: inline-block;
+    animation: typingBounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 80%, 100% { transform: translateY(0); opacity:0.5; }
+    40% { transform: translateY(-6px); opacity:1; }
+  }
+  .suggestion-chip:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #7dd3fc;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+  <div>
+    <div class="flex items-center gap-2 mb-1">
+      <span class="w-1 h-5 rounded-full bg-sky-400"></span>
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Module 01</p>
+    </div>
+    <h1 class="font-display text-2xl font-bold text-slate-100">Curve AI</h1>
+    <p class="text-slate-400 text-sm mt-1">Powered by Gemini 1.5 Flash·</p>
+  </div>
+  <button id="clearChatBtn" class="self-start sm:self-auto flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700/60 text-slate-400 text-xs font-mono hover:border-red-500/40 hover:text-red-400 transition-colors">
+    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+    Clear Chat
+  </button>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+
+  <!-- ── CHAT PANEL ──────────────────────────────────────── -->
+  <div class="xl:col-span-3 flex flex-col">
+    <div class="glass rounded-2xl flex flex-col" style="height: 72vh; min-height: 520px;">
+
+      <!-- Chat Header -->
+      <div class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-700/40">
+        <div class="relative">
+          <div class="w-9 h-9 rounded-full bg-sky-400/15 border border-sky-400/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
+          </div>
+          <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900"></span>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-100">Curve AI</p>
+          <p class="text-xs text-slate-500 font-mono">Active</p>
+        </div>
+        <div class="ml-auto flex items-center gap-1.5 text-xs text-slate-600 font-mono">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400/60"></span>
+          gemini-1.5-flash
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin" id="chatMessages">
+        <!-- Welcome message -->
+        <div class="flex gap-3 animate-fade-in" id="welcomeMessage">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sky-400/15 border border-sky-400/25 flex items-center justify-center mt-0.5">
+            <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+          </div>
+          <div class="chat-bubble-ai px-4 py-3 max-w-2xl">
+            <div class="md-content">
+              <h2>Welcome to The Curve — Economics Workspace</h2>
+              <p>I'm <strong>Curve AI, designed by Ved</strong>. I specialise in <strong>macroeconomics, monetary policy, and the Indian financial system.</strong></p>
+              <p>Ask me anything — from <strong>Core Economic Concepts</strong> to <strong>real-world policy, markets, and financial systems.</p>
+              <p>I'll always connect theory to real-world Indian market data and end with a <strong>Knowledge Check</strong> to sharpen your thinking.</p>
+              <p><em>Where shall we begin?</em></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="px-5 py-4 border-t border-slate-700/40">
+        <div class="flex gap-3 items-end">
+          <textarea
+            id="chatInput"
+            rows="1"
+            placeholder="Ask about GDP, inflation, monetary policy, RBI, market cycles..."
+            class="flex-1 bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500/60 focus:ring-1 focus:ring-sky-500/20 transition-colors font-sans scrollbar-thin"
+          ></textarea>
+          <button id="sendBtn"
+            class="flex-shrink-0 w-10 h-10 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:bg-slate-700 disabled:cursor-not-allowed flex items-center justify-center transition-all group"
+          >
+            <svg class="w-5 h-5 text-white group-disabled:text-slate-500 -rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m-7 7l7-7 7 7"/></svg>
+          </button>
+        </div>
+        <p class="text-xs text-slate-600 mt-2 font-mono">Press <kbd class="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-500 text-xs">Enter</kbd> to send · <kbd class="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-500 text-xs">Shift+Enter</kbd> for new line</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <div class="xl:col-span-1 space-y-4">
+
+    <!-- Suggested Questions -->
+    <div class="glass rounded-xl p-4">
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-3">Suggested Topics</p>
+      <div class="flex flex-col gap-2" id="suggestionsList">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Key Concepts Panel -->
+    <div class="glass rounded-xl p-4">
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-3">Core Frameworks</p>
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-800/60">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400/60"></span>
+          <span class="text-xs text-slate-400">IS-LM Model</span>
+        </div>
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-800/60">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/60"></span>
+          <span class="text-xs text-slate-400">Phillips Curve</span>
+        </div>
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-800/60">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400/60"></span>
+          <span class="text-xs text-slate-400">Solow Growth Model</span>
+        </div>
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-800/60">
+          <span class="w-1.5 h-1.5 rounded-full bg-violet-400/60"></span>
+          <span class="text-xs text-slate-400">Quantity Theory (MV=PT)</span>
+        </div>
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-800/60">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-400/60"></span>
+          <span class="text-xs text-slate-400">Taylor Rule</span>
+        </div>
+        <div class="flex items-center gap-2 py-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-slate-400/60"></span>
+          <span class="text-xs text-slate-400">Comparative Advantage</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session Stats -->
+    <div class="glass rounded-xl p-4">
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-3">Session</p>
+      <div class="space-y-2">
+        <div class="flex justify-between">
+          <span class="text-xs text-slate-500">Messages</span>
+          <span class="text-xs font-mono text-slate-300" id="msgCount">0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-xs text-slate-500">Model</span>
+          <span class="text-xs font-mono text-sky-400">gemini-1.5-flash</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-xs text-slate-500">Context</span>
+          <span class="text-xs font-mono text-slate-300" id="contextCount">0 turns</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Configuration ────────────────────────────────────────
+  const SUGGESTIONS = [
+    "Explain the RBI's repo rate mechanism",
+    "What is the Phillips Curve trade-off?",
+    "How does fiscal deficit affect inflation?",
+    "Explain the IS-LM model simply",
+    "What drives India's current account deficit?",
+    "Explain quantitative easing and its risks",
+    "How does the Taylor Rule work?",
+    "What is the Solow Growth Model?",
+  ];
+
+  // ── State ────────────────────────────────────────────────
+  let conversationHistory = [];  // [{role: 'user'|'model', content: str}]
+  let isWaiting = false;
+
+  // ── DOM Refs ─────────────────────────────────────────────
+  const chatMessages  = document.getElementById('chatMessages');
+  const chatInput     = document.getElementById('chatInput');
+  const sendBtn       = document.getElementById('sendBtn');
+  const clearChatBtn  = document.getElementById('clearChatBtn');
+  const msgCountEl    = document.getElementById('msgCount');
+  const contextCountEl= document.getElementById('contextCount');
+
+  // ── Marked.js Setup ─────────────────────────────────────
+  marked.setOptions({
+    breaks: true,
+    gfm: true,
+  });
+
+  // ── Build Suggestions ────────────────────────────────────
+  function buildSuggestions() {
+    const list = document.getElementById('suggestionsList');
+    const sample = SUGGESTIONS.sort(() => 0.5 - Math.random()).slice(0, 5);
+    list.innerHTML = sample.map(s => `
+      <button class="suggestion-chip text-left px-3 py-2 rounded-lg border border-slate-700/50 text-slate-400 text-xs transition-all duration-200 hover:bg-sky-400/10 leading-snug"
+              onclick="sendSuggestion('${s.replace(/'/g, "\\'")}')">
+        ${s}
+      </button>
+    `).join('');
+  }
+
+  function sendSuggestion(text) {
+    chatInput.value = text;
+    sendMessage();
+  }
+
+  // ── Append Message Bubble ────────────────────────────────
+  function appendMessage(role, content, isError = false) {
+    const isUser = role === 'user';
+    const wrapper = document.createElement('div');
+    wrapper.className = `flex gap-3 animate-fade-in ${isUser ? 'flex-row-reverse' : ''}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = `flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-0.5 ${
+      isUser
+        ? 'bg-sky-400/20 border border-sky-400/30'
+        : (isError ? 'bg-red-400/10 border border-red-400/20' : 'bg-sky-400/15 border border-sky-400/25')
+    }`;
+    avatar.innerHTML = isUser
+      ? `<svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>`
+      : (isError
+        ? `<svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`
+        : `<svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>`);
+
+    const bubble = document.createElement('div');
+    bubble.className = `px-4 py-3 max-w-2xl ${
+      isUser
+        ? 'chat-bubble-user text-slate-200 text-sm leading-relaxed'
+        : (isError ? 'chat-bubble-error' : 'chat-bubble-ai')
+    }`;
+
+    if (isUser) {
+      bubble.textContent = content;
+    } else {
+      bubble.classList.add('md-content');
+      bubble.innerHTML = marked.parse(content);
+    }
+
+    if (isUser) {
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(avatar);
+    } else {
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(bubble);
+    }
+    chatMessages.appendChild(wrapper);
+    scrollToBottom();
+    return wrapper;
+  }
+
+  // ── Typing Indicator ─────────────────────────────────────
+  function showTyping() {
+    const wrapper = document.createElement('div');
+    wrapper.id = 'typingIndicator';
+    wrapper.className = 'flex gap-3 animate-fade-in';
+    wrapper.innerHTML = `
+      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sky-400/15 border border-sky-400/25 flex items-center justify-center mt-0.5">
+        <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+      </div>
+      <div class="chat-bubble-ai px-4 py-3 flex items-center gap-1.5">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>`;
+    chatMessages.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  }
+
+  // ── Scroll ───────────────────────────────────────────────
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // ── Update Stats ─────────────────────────────────────────
+  function updateStats() {
+    const turns = conversationHistory.length;
+    msgCountEl.textContent = turns;
+    contextCountEl.textContent = `${Math.floor(turns / 2)} turns`;
+  }
+
+  // ── Send Message ─────────────────────────────────────────
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message || isWaiting) return;
+
+    // Reset input
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    isWaiting = true;
+    sendBtn.disabled = true;
+
+    // Append user bubble
+    appendMessage('user', message);
+
+    // Add to history
+    conversationHistory.push({ role: 'user', content: message });
+    updateStats();
+
+    // Show typing
+    showTyping();
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message,
+          history: conversationHistory.slice(0, -1) // send history without latest user msg
+        })
+      });
+
+      const data = await response.json();
+      removeTyping();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || `Server error: ${response.status}`);
+      }
+
+      // Append AI response
+      appendMessage('model', data.response);
+      conversationHistory.push({ role: 'model', content: data.response });
+
+    } catch (err) {
+      removeTyping();
+      appendMessage('model', `**Error:** ${err.message}\n\nPlease ensure the Gemini API key is configured in your \`.env\` file and the server is running correctly.`, true);
+    } finally {
+      isWaiting = false;
+      sendBtn.disabled = false;
+      chatInput.focus();
+      updateStats();
+    }
+  }
+
+  // ── Clear Chat ───────────────────────────────────────────
+  clearChatBtn.addEventListener('click', () => {
+    conversationHistory = [];
+    chatMessages.innerHTML = '';
+    updateStats();
+    // Re-add welcome
+    document.getElementById('welcomeMessage')?.remove();
+    const welcome = document.createElement('div');
+    welcome.innerHTML = `
+      <div class="flex gap-3 animate-fade-in">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sky-400/15 border border-sky-400/25 flex items-center justify-center mt-0.5">
+          <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+        </div>
+        <div class="chat-bubble-ai px-4 py-3 max-w-2xl md-content">
+          <h2>Chat cleared.</h2>
+          <p>Ready for a new session. What economic concept shall we explore?</p>
+        </div>
+      </div>`;
+    chatMessages.appendChild(welcome.firstElementChild);
+    buildSuggestions();
+  });
+
+  // ── Event Listeners ──────────────────────────────────────
+  sendBtn.addEventListener('click', sendMessage);
+
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+  });
+
+  // ── Init ─────────────────────────────────────────────────
+  buildSuggestions();
+  chatInput.focus();
+</script>
+{% endblock %}

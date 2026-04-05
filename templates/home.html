@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════════════════════════
+     HERO SECTION
+═══════════════════════════════════════════════════════════ -->
+<section class="relative mb-10">
+  <!-- Background glow -->
+  <div class="absolute inset-0 -z-10 overflow-hidden rounded-2xl">
+    <div class="absolute -top-20 -left-20 w-96 h-96 bg-sky-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-10 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="glass rounded-2xl p-8 sm:p-10 border border-sky-900/30">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-400/10 border border-sky-400/20 text-sky-400 text-xs font-mono font-semibold tracking-wider uppercase">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+            LIVE INTELLIGENCE
+          </span>
+        </div>
+        <h1 class="font-display text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
+          <span class="text-sky-400">The</span> <span class="text-slate-100">Curve</span>
+        </h1>
+        <p class="mt-3 text-slate-400 text-lg max-w-xl leading-relaxed">
+          Your command center for global economic intelligence. Analyze markets, simulate policy, and learn from an AI-powered economist.
+        </p>
+        <div class="flex flex-wrap gap-3 mt-5">
+          <a href="/ai" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-400/10 border border-sky-400/30 text-sky-300 text-sm font-semibold hover:bg-sky-400/20 transition-all group">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            Ask AI Tutor
+          </a>
+          <a href="/market" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/60 border border-slate-700/50 text-slate-300 text-sm font-semibold hover:border-sky-500/30 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Explore Markets
+          </a>
+        </div>
+      </div>
+
+      <!-- Mini stat panels -->
+      <div class="grid grid-cols-3 gap-3 lg:min-w-72">
+        <div class="glass rounded-xl p-3 text-center border border-emerald-500/15">
+          <p class="text-xs text-slate-500 font-mono uppercase tracking-wider mb-1">India GDP Growth Rate</p>
+          <p class="text-2xl font-display font-bold text-emerald-400">7.2<span class="text-base">%</span></p>
+          <p class="text-xs text-slate-500 mt-0.5">FY25-26</p>
+        </div>
+        <div class="glass rounded-xl p-3 text-center border border-amber-500/15">
+          <p class="text-xs text-slate-500 font-mono uppercase tracking-wider mb-1">CPI Inflation Rate</p>
+          <p class="text-2xl font-display font-bold text-amber-400">3.21<span class="text-base">%</span></p>
+          <p class="text-xs text-slate-500 mt-0.5">Feb '26</p>
+        </div>
+        <div class="glass rounded-xl p-3 text-center border border-sky-500/15">
+          <p class="text-xs text-slate-500 font-mono uppercase tracking-wider mb-1">Repo Rate</p>
+          <p class="text-2xl font-display font-bold text-sky-400">5.25<span class="text-base">%</span></p>
+          <p class="text-xs text-slate-500 mt-0.5">RBI MPC</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN CONTENT GRID (Tools + Sidebar)
+═══════════════════════════════════════════════════════════ -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+  <!-- ── TOOL CARDS (2/3 width) ─────────────────────────── -->
+  <div class="xl:col-span-2 space-y-6">
+
+    <div class="flex items-center gap-2 mb-1">
+      <span class="w-1 h-5 rounded-full bg-sky-400"></span>
+      <h2 class="font-display font-semibold text-slate-200 text-sm uppercase tracking-widest">Intelligence Modules</h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <!-- AI Tutor Card -->
+      <a href="/ai" class="glass glass-hover rounded-xl p-5 flex flex-col gap-3 group transition-all duration-300 animate-fade-in" style="animation-delay:0.05s">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-sky-400/10 border border-sky-400/20 flex items-center justify-center group-hover:bg-sky-400/20 transition-colors">
+            <svg class="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+          </div>
+          <svg class="w-4 h-4 text-slate-600 group-hover:text-sky-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-slate-100 text-base group-hover:text-sky-300 transition-colors">AI Tutor</h3>
+          <p class="text-slate-400 text-sm mt-1 leading-relaxed">Chat with Curve AI — a chatbot powered by Gemini 1.5 Flash trained on rigorous macro frameworks.</p>
+        </div>
+        <div class="flex gap-1.5 mt-auto">
+          <span class="px-2 py-0.5 rounded-full bg-sky-400/10 text-sky-400 text-xs font-mono">Gemini AI</span>
+        </div>
+      </a>
+
+      <!-- Markets Card -->
+      <a href="/market" class="glass glass-hover rounded-xl p-5 flex flex-col gap-3 group transition-all duration-300 animate-fade-in" style="animation-delay:0.10s">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center group-hover:bg-emerald-400/20 transition-colors">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6.75v6.75"/></svg>
+          </div>
+          <svg class="w-4 h-4 text-slate-600 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-slate-100 text-base group-hover:text-emerald-300 transition-colors">Global Markets</h3>
+          <p class="text-slate-400 text-sm mt-1 leading-relaxed">Compare GDP growth and inflation across countries on interactive Chart.js graphs using live World Bank API data.</p>
+        </div>
+        <div class="flex gap-1.5 mt-auto">
+          <span class="px-2 py-0.5 rounded-full bg-emerald-400/10 text-emerald-400 text-xs font-mono">World Bank</span>
+        </div>
+      </a>
+
+      <!-- Econ Lab Card -->
+      <a href="/simulation" class="glass glass-hover rounded-xl p-5 flex flex-col gap-3 group transition-all duration-300 animate-fade-in" style="animation-delay:0.15s">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-violet-400/10 border border-violet-400/20 flex items-center justify-center group-hover:bg-violet-400/20 transition-colors">
+            <svg class="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15M14.25 3.104c.251.023.501.05.75.082M19.8 15a2.25 2.25 0 01-.659 1.591l-1.591 1.591a2.25 2.25 0 01-1.591.659H8.04a2.25 2.25 0 01-1.591-.659L4.86 16.59A2.25 2.25 0 014.2 15M19.8 15H4.2"/></svg>
+          </div>
+          <svg class="w-4 h-4 text-slate-600 group-hover:text-violet-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-slate-100 text-base group-hover:text-violet-300 transition-colors">Econ Lab</h3>
+          <p class="text-slate-400 text-sm mt-1 leading-relaxed">Simulate fiscal and monetary policy in real-time. Adjust repo rates, spending and tax sliders to project macroeconomic outcomes.</p>
+        </div>
+        <div class="flex gap-1.5 mt-auto">
+          <span class="px-2 py-0.5 rounded-full bg-violet-400/10 text-violet-400 text-xs font-mono">Interactive</span>
+        </div>
+      </a>
+
+      <!-- News Terminal Card -->
+      <a href="/news" class="glass glass-hover rounded-xl p-5 flex flex-col gap-3 group transition-all duration-300 animate-fade-in" style="animation-delay:0.20s">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center group-hover:bg-amber-400/20 transition-colors">
+            <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z"/></svg>
+          </div>
+          <svg class="w-4 h-4 text-slate-600 group-hover:text-amber-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-slate-100 text-base group-hover:text-amber-300 transition-colors">News Terminal</h3>
+          <p class="text-slate-400 text-sm mt-1 leading-relaxed">Live macroeconomic news with AI-generated Bullish, Bearish, and Neutral sentiment badges via Alpha Vantage.</p>
+        </div>
+        <div class="flex gap-1.5 mt-auto">
+          <span class="px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 text-xs font-mono">Alpha Vantage</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- ── India Economic Indicators Strip ─────────────── -->
+    <div class="glass rounded-xl p-5 border border-slate-700/30 animate-fade-in" style="animation-delay:0.25s">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-1 h-4 rounded-full bg-sky-400/60"></span>
+        <h3 class="font-display font-semibold text-slate-300 text-sm uppercase tracking-widest">India Economic Snapshot</h3>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div>
+          <p class="text-xs font-mono text-slate-500 uppercase tracking-wider">Repo Rate</p>
+          <p class="text-xl font-display font-bold text-sky-400 mt-1">5.25%</p>
+          <p class="text-xs text-slate-500 mt-0.5">RBI — Unchanged</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono text-slate-500 uppercase tracking-wider">GDP Growth</p>
+          <p class="text-xl font-display font-bold text-emerald-400 mt-1">7.2%</p>
+          <p class="text-xs text-slate-500 mt-0.5">FY25-26</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono text-slate-500 uppercase tracking-wider">CPI Inflation</p>
+          <p class="text-xl font-display font-bold text-amber-400 mt-1">3.21%</p>
+          <p class="text-xs text-slate-500 mt-0.5">2025</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono text-slate-500 uppercase tracking-wider">Unemployment</p>
+          <p class="text-xl font-display font-bold text-slate-300 mt-1">7.8%</p>
+          <p class="text-xs text-slate-500 mt-0.5">CMIE — Oct '25</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── QUICK STATS SIDEBAR ───────────────────────────── -->
+  <div class="xl:col-span-1 space-y-4">
+
+    <div class="flex items-center gap-2 mb-1">
+      <span class="w-1 h-5 rounded-full bg-sky-400"></span>
+      <h2 class="font-display font-semibold text-slate-200 text-sm uppercase tracking-widest">Global Stats</h2>
+    </div>
+
+    <!-- World GDP -->
+    <div class="glass rounded-xl p-4 border border-slate-700/30 animate-fade-in" style="animation-delay:0.10s">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-mono text-slate-500 uppercase tracking-wider">World GDP (USD)</p>
+        <span class="text-xs text-emerald-400 font-mono">▲ Expanding</span>
+      </div>
+      <p class="text-2xl font-display font-bold text-slate-100">$123.58<span class="text-lg text-slate-400"> T</span></p>
+      <p class="text-xs text-slate-500 mt-1">2025 IMF Estimate</p>
+      <div class="mt-3 h-1 rounded-full bg-slate-800 overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-sky-500 to-emerald-400 rounded-full" style="width:72%"></div>
+      </div>
+    </div>
+
+    <!-- Key Rates Table -->
+    <div class="glass rounded-xl p-4 border border-slate-700/30 animate-fade-in" style="animation-delay:0.15s">
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-3">Central Bank Rates</p>
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-300">RBI (India)</span>
+          <span class="font-mono text-sm font-semibold text-sky-400">6.50%</span>
+        </div>
+        <div class="h-px bg-slate-800/80"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-300">US Fed</span>
+          <span class="font-mono text-sm font-semibold text-emerald-400">4.50%</span>
+        </div>
+        <div class="h-px bg-slate-800/80"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-300">ECB (Euro)</span>
+          <span class="font-mono text-sm font-semibold text-slate-300">3.00%</span>
+        </div>
+        <div class="h-px bg-slate-800/80"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-300">Bank of England</span>
+          <span class="font-mono text-sm font-semibold text-amber-400">4.75%</span>
+        </div>
+        <div class="h-px bg-slate-800/80"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-300">Bank of Japan</span>
+          <span class="font-mono text-sm font-semibold text-slate-400">0.25%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRICS GDP Tracker -->
+    <div class="glass rounded-xl p-4 border border-slate-700/30 animate-fade-in" style="animation-delay:0.20s">
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-3">GDP Growth</p>
+      <div class="space-y-2.5">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-300">India</span>
+            <span class="text-emerald-400 font-mono font-semibold">7.2%</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-800">
+            <div class="h-full bg-emerald-400 rounded-full" style="width:90%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-300">China</span>
+            <span class="text-amber-400 font-mono font-semibold">4.8%</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-800">
+            <div class="h-full bg-amber-400 rounded-full" style="width:60%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-300">USA</span>
+            <span class="text-sky-400 font-mono font-semibold">2.7%</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-800">
+            <div class="h-full bg-sky-400 rounded-full" style="width:34%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-300">Eurozone</span>
+            <span class="text-slate-400 font-mono font-semibold">0.8%</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-800">
+            <div class="h-full bg-slate-500 rounded-full" style="width:10%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RBI Policy Stance -->
+    <div class="glass rounded-xl p-4 border border-amber-500/15 animate-fade-in" style="animation-delay:0.25s">
+      <p class="text-xs font-mono text-amber-500/80 uppercase tracking-wider mb-2">RBI Policy Stance</p>
+      <p class="text-base font-display font-bold text-amber-300">Withdrawal of Accommodation</p>
+      <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">MPC voted 5-1 to hold repo at 6.5%. Monitors CPI vs. 4% target.</p>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

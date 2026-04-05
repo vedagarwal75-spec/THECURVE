@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% block title %}Econ Lab{% endblock %}
+
+{% block head %}
+<style>
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 9999px;
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+  }
+  input[type="range"].slider-blue {
+    background: linear-gradient(to right, #38bdf8 var(--val, 50%), #1e293b var(--val, 50%));
+  }
+  input[type="range"].slider-emerald {
+    background: linear-gradient(to right, #34d399 var(--val, 50%), #1e293b var(--val, 50%));
+  }
+  input[type="range"].slider-red {
+    background: linear-gradient(to right, #f87171 var(--val, 50%), #1e293b var(--val, 50%));
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid #0f172a;
+    cursor: pointer;
+    transition: transform 0.15s;
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
+  }
+  input[type="range"].slider-blue::-webkit-slider-thumb  { background: #38bdf8; }
+  input[type="range"].slider-emerald::-webkit-slider-thumb { background: #34d399; }
+  input[type="range"].slider-red::-webkit-slider-thumb   { background: #f87171; }
+  input[type="range"]::-webkit-slider-thumb:hover        { transform: scale(1.25); }
+
+  .outcome-card { transition: border-color 0.3s, box-shadow 0.3s; }
+  .outcome-card.positive { border-color: rgba(52,211,153,0.4); box-shadow: 0 0 16px rgba(52,211,153,0.1); }
+  .outcome-card.negative { border-color: rgba(248,113,113,0.4); box-shadow: 0 0 16px rgba(248,113,113,0.1); }
+  .outcome-card.neutral  { border-color: rgba(148,163,184,0.2); }
+
+  .delta-badge { display: inline-flex; align-items: center; gap:4px; font-family: 'JetBrains Mono', monospace; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="mb-6">
+  <div class="flex items-center gap-2 mb-1">
+    <span class="w-1 h-5 rounded-full bg-violet-400"></span>
+    <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Module 03</p>
+  </div>
+  <h1 class="font-display text-2xl font-bold text-slate-100">Macroeconomic Policy Lab</h1>
+  <p class="text-slate-400 text-sm mt-1">Adjust policy levers to simulate impact on GDP Growth, Inflation, and Unemployment ·</p>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+
+  <!-- ── POLICY CONTROLS (2 cols) ──────────────────────── -->
+  <div class="xl:col-span-2 space-y-4">
+
+    <div class="flex items-center gap-2 mb-1">
+      <span class="w-1 h-4 rounded-full bg-violet-400/60"></span>
+      <h2 class="font-display font-semibold text-slate-300 text-sm uppercase tracking-widest">Policy Instruments</h2>
+    </div>
+
+    <!-- Slider 1: Repo Rate -->
+    <div class="glass rounded-xl p-5 border border-sky-500/15">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-2 h-2 rounded-full bg-sky-400"></div>
+        <h3 class="text-sm font-semibold text-slate-200">Monetary Policy</h3>
+        <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-sky-400/10 text-sky-400 font-mono">RBI Repo Rate</span>
+      </div>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">Controls the cost of credit. Higher rates cool demand and inflation but restrain growth.</p>
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs text-slate-500 font-mono">3.0%</span>
+        <span class="text-lg font-display font-bold text-sky-400" id="repoDisplay">6.5%</span>
+        <span class="text-xs text-slate-500 font-mono">12.0%</span>
+      </div>
+      <input type="range" id="repoSlider" class="slider-blue"
+             min="3" max="12" step="0.25" value="6.5" />
+      <div class="flex justify-between mt-2 text-xs text-slate-600 font-mono">
+        <span>Accommodative</span><span>Restrictive</span>
+      </div>
+    </div>
+
+    <!-- Slider 2: Govt Spending -->
+    <div class="glass rounded-xl p-5 border border-emerald-500/15">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+        <h3 class="text-sm font-semibold text-slate-200">Fiscal Expansion</h3>
+        <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-emerald-400/10 text-emerald-400 font-mono">Govt. Spending</span>
+      </div>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">Government expenditure directly injects demand into the economy, but risks fiscal deficit.</p>
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs text-slate-500 font-mono">10%</span>
+        <span class="text-lg font-display font-bold text-emerald-400" id="spendingDisplay">27%</span>
+        <span class="text-xs text-slate-500 font-mono">45%</span>
+      </div>
+      <input type="range" id="spendingSlider" class="slider-emerald"
+             min="10" max="45" step="1" value="27" />
+      <div class="flex justify-between mt-2 text-xs text-slate-600 font-mono">
+        <span>Austerity</span><span>Expansionary</span>
+      </div>
+    </div>
+
+    <!-- Slider 3: Corporate Tax -->
+    <div class="glass rounded-xl p-5 border border-red-500/15">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-2 h-2 rounded-full bg-red-400"></div>
+        <h3 class="text-sm font-semibold text-slate-200">Fiscal Contraction</h3>
+        <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-red-400/10 text-red-400 font-mono">Corporate Tax</span>
+      </div>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">Higher corporate taxes reduce private investment.Lower rates boost CapEx.</p>
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs text-slate-500 font-mono">5%</span>
+        <span class="text-lg font-display font-bold text-red-400" id="taxDisplay">25%</span>
+        <span class="text-xs text-slate-500 font-mono">50%</span>
+      </div>
+      <input type="range" id="taxSlider" class="slider-red"
+             min="5" max="50" step="1" value="25" />
+      <div class="flex justify-between mt-2 text-xs text-slate-600 font-mono">
+        <span>Low Tax</span><span>High Tax</span>
+      </div>
+    </div>
+
+    <!-- Reset Button -->
+    <button id="resetBtn" class="w-full py-2.5 rounded-xl border border-slate-700/50 text-slate-400 text-sm font-mono hover:border-sky-500/40 hover:text-sky-400 transition-colors">
+      ↺ Reset to India Baseline (FY25)
+    </button>
+
+  </div>
+
+  <!-- ── CHART + OUTCOMES (3 cols) ──────────────────────── -->
+  <div class="xl:col-span-3 flex flex-col gap-5">
+
+    <!-- Outcome Cards -->
+    <div class="grid grid-cols-3 gap-3">
+      <div class="glass outcome-card rounded-xl p-4 text-center border border-slate-700/30" id="gdpCard">
+        <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">GDP Growth</p>
+        <p class="text-2xl font-display font-bold text-emerald-400" id="gdpValue">7.2%</p>
+        <p class="text-xs mt-1" id="gdpDelta">
+          <span class="delta-badge text-emerald-400">▲ Baseline</span>
+        </p>
+      </div>
+      <div class="glass outcome-card rounded-xl p-4 text-center border border-slate-700/30" id="inflCard">
+        <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">Inflation</p>
+        <p class="text-2xl font-display font-bold text-amber-400" id="inflValue">4.8%</p>
+        <p class="text-xs mt-1" id="inflDelta">
+          <span class="delta-badge text-slate-500">■ Baseline</span>
+        </p>
+      </div>
+      <div class="glass outcome-card rounded-xl p-4 text-center border border-slate-700/30" id="unempCard">
+        <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-1">Unemployment</p>
+        <p class="text-2xl font-display font-bold text-slate-300" id="unempValue">7.8%</p>
+        <p class="text-xs mt-1" id="unempDelta">
+          <span class="delta-badge text-slate-500">■ Baseline</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="glass rounded-2xl p-5 border border-slate-700/30 flex-1" style="min-height:320px">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-semibold text-slate-200 text-sm">Projected Macroeconomic Outcomes</h2>
+        <span class="text-xs font-mono text-slate-600">IS-LM + Phillips Curve Model</span>
+      </div>
+      <div style="height: 280px; position: relative;">
+        <canvas id="simChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Model Explanation -->
+    <div class="glass rounded-xl p-4 border border-slate-700/20">
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Model Logic</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-400 leading-relaxed">
+        <div>
+          <span class="text-sky-400 font-semibold block mb-0.5">Repo Rate ↑</span>
+          LM curve shifts left → higher cost of capital → investment ↓ → GDP ↓, Unemployment ↑, Inflation ↓
+        </div>
+        <div>
+          <span class="text-emerald-400 font-semibold block mb-0.5">Govt. Spending ↑</span>
+          IS curve shifts right → aggregate demand ↑ → GDP ↑, Inflation ↑ (demand-pull), Unemployment ↓
+        </div>
+        <div>
+          <span class="text-red-400 font-semibold block mb-0.5">Corp. Tax ↑</span>
+          IS curve shifts left → private investment ↓ (crowding-out) → GDP ↓, Unemployment ↑, mild deflation
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Baseline (India FY25) ────────────────────────────────
+  const BASELINE = { gdp: 7.2, infl: 4.8, unemp: 7.8 };
+  const BASELINE_REPO     = 6.5;
+  const BASELINE_SPENDING = 27;
+  const BASELINE_TAX      = 25;
+
+  // ── Chart Instance ───────────────────────────────────────
+  let simChart = null;
+
+  function initChart(gdp, infl, unemp) {
+    const ctx = document.getElementById('simChart').getContext('2d');
+    simChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['GDP Growth (%)', 'Inflation (%)', 'Unemployment (%)'],
+        datasets: [
+          {
+            label: 'Projected',
+            data: [gdp, infl, unemp],
+            backgroundColor: [
+              'rgba(52, 211, 153, 0.75)',
+              'rgba(251, 191, 36, 0.75)',
+              'rgba(148, 163, 184, 0.6)',
+            ],
+            borderColor: ['#34d399', '#fbbf24', '#94a3b8'],
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+          },
+          {
+            label: 'Baseline (India FY25)',
+            data: [BASELINE.gdp, BASELINE.infl, BASELINE.unemp],
+            backgroundColor: 'rgba(56,189,248,0.08)',
+            borderColor: 'rgba(56,189,248,0.4)',
+            borderWidth: 1.5,
+            borderRadius: 8,
+            borderSkipped: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#94a3b8',
+              font: { family: "'Inter', sans-serif", size: 11 },
+              usePointStyle: true,
+              boxWidth: 10,
+              padding: 16,
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15,23,42,0.95)',
+            borderColor: 'rgba(56,189,248,0.2)',
+            borderWidth: 1,
+            titleColor: '#e2e8f0',
+            bodyColor: '#94a3b8',
+            padding: 10,
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#64748b', font: { family: "'Inter', sans-serif", size: 11 } },
+          },
+          y: {
+            grid: { color: 'rgba(148,163,184,0.06)' },
+            ticks: {
+              color: '#64748b',
+              font: { family: "'JetBrains Mono', monospace", size: 11 },
+              callback: v => v + '%'
+            },
+            min: -3,
+          }
+        }
+      }
+    });
+  }
+
+  // ── Economic Model ───────────────────────────────────────
+  /**
+   * IS-LM inspired macroeconomic simulation model.
+   * All sensitivities are calibrated to roughly match
+   * empirical Indian macroeconomic elasticities.
+   */
+  function calculateOutcomes(repo, spending, tax) {
+    // Deviations from baseline
+    const dRepo     = repo     - BASELINE_REPO;       // +ve = tighter
+    const dSpending = spending - BASELINE_SPENDING;   // +ve = more expansionary
+    const dTax      = tax      - BASELINE_TAX;        // +ve = more contractionary
+
+    // --- GDP Growth Impact ---
+    // Repo ↑ 1pp → GDP ↓ ~0.35pp (RBI empirical transmission)
+    // Spending ↑ 1pp → GDP ↑ ~0.18pp (fiscal multiplier ~0.8 applied to % GDP)
+    // Tax ↑ 1pp → GDP ↓ ~0.10pp (private investment crowding out)
+    let gdp = BASELINE.gdp
+              - (dRepo     * 0.35)
+              + (dSpending * 0.18)
+              - (dTax      * 0.10);
+    gdp = Math.max(-3, Math.min(14, gdp));
+
+    // --- Inflation Impact (Phillips Curve + Demand-Pull) ---
+    // Repo ↑ → demand compression → inflation ↓
+    // Spending ↑ → demand pull → inflation ↑
+    // Tax ↑ → cost-push mild (supply side) but mostly demand contraction → slight deflation
+    let infl = BASELINE.infl
+               - (dRepo     * 0.28)
+               + (dSpending * 0.15)
+               - (dTax      * 0.06);
+    infl = Math.max(-1.5, Math.min(18, infl));
+
+    // --- Unemployment Impact (Okun's Law: ~2:1 GDP-unemployment) ---
+    // GDP ↑ 1pp → unemployment ↓ ~0.4pp (Okun's coefficient for India ~0.4)
+    let unemp = BASELINE.unemp
+                + (dRepo     * 0.25)
+                - (dSpending * 0.12)
+                + (dTax      * 0.08);
+    unemp = Math.max(2, Math.min(20, unemp));
+
+    return {
+      gdp:   parseFloat(gdp.toFixed(2)),
+      infl:  parseFloat(infl.toFixed(2)),
+      unemp: parseFloat(unemp.toFixed(2)),
+    };
+  }
+
+  // ── Format Delta Badge ───────────────────────────────────
+  function deltaBadge(current, baseline, invertGood = false) {
+    const diff = current - baseline;
+    const absDiff = Math.abs(diff).toFixed(2);
+    if (Math.abs(diff) < 0.05) {
+      return `<span class="delta-badge text-slate-500">■ Baseline</span>`;
+    }
+    let isGood = diff > 0;
+    if (invertGood) isGood = !isGood;
+    const color = isGood ? 'text-emerald-400' : 'text-red-400';
+    const arrow = diff > 0 ? '▲' : '▼';
+    return `<span class="delta-badge ${color}">${arrow} ${absDiff}pp from baseline</span>`;
+  }
+
+  // ── Update UI ────────────────────────────────────────────
+  function updateUI(gdp, infl, unemp) {
+    // Values
+    document.getElementById('gdpValue').textContent  = `${gdp.toFixed(1)}%`;
+    document.getElementById('inflValue').textContent = `${infl.toFixed(1)}%`;
+    document.getElementById('unempValue').textContent= `${unemp.toFixed(1)}%`;
+
+    // Deltas (GDP: higher is good; Inflation: lower is good; Unemployment: lower is good)
+    document.getElementById('gdpDelta').innerHTML   = deltaBadge(gdp,   BASELINE.gdp,   false);
+    document.getElementById('inflDelta').innerHTML  = deltaBadge(infl,  BASELINE.infl,  true);
+    document.getElementById('unempDelta').innerHTML = deltaBadge(unemp, BASELINE.unemp, true);
+
+    // Card highlights
+    const gdpCard   = document.getElementById('gdpCard');
+    const inflCard  = document.getElementById('inflCard');
+    const unempCard = document.getElementById('unempCard');
+
+    gdpCard.className   = `glass outcome-card rounded-xl p-4 text-center border ${gdp > BASELINE.gdp ? 'positive' : gdp < BASELINE.gdp ? 'negative' : 'neutral'}`;
+    inflCard.className  = `glass outcome-card rounded-xl p-4 text-center border ${infl < BASELINE.infl ? 'positive' : infl > BASELINE.infl ? 'negative' : 'neutral'}`;
+    unempCard.className = `glass outcome-card rounded-xl p-4 text-center border ${unemp < BASELINE.unemp ? 'positive' : unemp > BASELINE.unemp ? 'negative' : 'neutral'}`;
+
+    // GDP value color
+    document.getElementById('gdpValue').className = `text-2xl font-display font-bold ${gdp >= 5 ? 'text-emerald-400' : gdp >= 2 ? 'text-amber-400' : 'text-red-400'}`;
+
+    // Chart update
+    if (simChart) {
+      simChart.data.datasets[0].data = [gdp, infl, unemp];
+      simChart.update('active');
+    }
+  }
+
+  // ── Update Slider Fill ───────────────────────────────────
+  function updateSliderFill(slider) {
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const val = parseFloat(slider.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    slider.style.setProperty('--val', pct + '%');
+  }
+
+  // ── Slider Handler ───────────────────────────────────────
+  function onSliderChange() {
+    const repo     = parseFloat(document.getElementById('repoSlider').value);
+    const spending = parseFloat(document.getElementById('spendingSlider').value);
+    const tax      = parseFloat(document.getElementById('taxSlider').value);
+
+    document.getElementById('repoDisplay').textContent     = repo.toFixed(2) + '%';
+    document.getElementById('spendingDisplay').textContent = spending + '%';
+    document.getElementById('taxDisplay').textContent      = tax + '%';
+
+    updateSliderFill(document.getElementById('repoSlider'));
+    updateSliderFill(document.getElementById('spendingSlider'));
+    updateSliderFill(document.getElementById('taxSlider'));
+
+    const { gdp, infl, unemp } = calculateOutcomes(repo, spending, tax);
+    updateUI(gdp, infl, unemp);
+  }
+
+  // ── Event Listeners ──────────────────────────────────────
+  ['repoSlider','spendingSlider','taxSlider'].forEach(id => {
+    document.getElementById(id).addEventListener('input', onSliderChange);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('repoSlider').value     = BASELINE_REPO;
+    document.getElementById('spendingSlider').value = BASELINE_SPENDING;
+    document.getElementById('taxSlider').value      = BASELINE_TAX;
+    document.getElementById('repoDisplay').textContent     = BASELINE_REPO + '%';
+    document.getElementById('spendingDisplay').textContent = BASELINE_SPENDING + '%';
+    document.getElementById('taxDisplay').textContent      = BASELINE_TAX + '%';
+    onSliderChange();
+  });
+
+  // ── Init ─────────────────────────────────────────────────
+  const { gdp: initGdp, infl: initInfl, unemp: initUnemp } = calculateOutcomes(BASELINE_REPO, BASELINE_SPENDING, BASELINE_TAX);
+  initChart(initGdp, initInfl, initUnemp);
+
+  // Initialize slider fills
+  ['repoSlider','spendingSlider','taxSlider'].forEach(id => updateSliderFill(document.getElementById(id)));
+</script>
+{% endblock %}

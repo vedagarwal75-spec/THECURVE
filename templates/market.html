@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% block title %}Global Markets{% endblock %}
+
+{% block content %}
+
+<div class="mb-6">
+  <div class="flex items-center gap-2 mb-1">
+    <span class="w-1 h-5 rounded-full bg-emerald-400"></span>
+    <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Module 02</p>
+  </div>
+  <h1 class="font-display text-2xl font-bold text-slate-100">Global Markets Comparison</h1>
+  <p class="text-slate-400 text-sm mt-1">Live data from World Bank Open API · 15-year historical analysis</p>
+</div>
+
+<div class="glass rounded-2xl p-5 mb-6 border border-slate-700/30">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+
+    <div>
+      <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Metric</label>
+      <div class="relative">
+        <select id="metricSelect"
+          class="w-full appearance-none bg-slate-900/80 border border-slate-700/60 text-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500/60 focus:ring-1 focus:ring-sky-500/20 cursor-pointer font-sans">
+          <option value="NY.GDP.MKTP.KD.ZG">GDP Growth Rate (%)</option>
+          <option value="FP.CPI.TOTL.ZG">CPI Inflation (%)</option>
+          <option value="SL.UEM.TOTL.ZS">Unemployment, Total (% of labor force)</option>
+          <option value="FR.INR.RINR">Real Interest Rate (%)</option>
+          <option value="BX.KLT.DINV.WD.GD.ZS">Foreign Direct Investment (% of GDP)</option>
+          <option value="NE.EXP.GNFS.ZS">Exports of Goods & Services (% of GDP)</option>
+          <option value="SP.POP.GROW">Population Growth (%)</option>
+          <option value="IT.NET.USER.ZS">Internet Individuals (% of Population)</option>
+        </select>
+        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-sm bg-sky-400 mr-1.5"></span>Country A
+      </label>
+      <div class="relative">
+        <select id="country1Select"
+          class="w-full appearance-none bg-slate-900/80 border border-slate-700/60 text-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500/60 focus:ring-1 focus:ring-sky-500/20 cursor-pointer font-sans">
+          <option value="IN" selected>🇮🇳 India</option>
+          <option value="US">🇺🇸 United States</option>
+          <option value="CN">🇨🇳 China</option>
+          <option value="GB">🇬🇧 United Kingdom</option>
+          <option value="DE">🇩🇪 Germany</option>
+          <option value="JP">🇯🇵 Japan</option>
+          <option value="BR">🇧🇷 Brazil</option>
+          <option value="ZA">🇿🇦 South Africa</option>
+          <option value="KR">🇰🇷 South Korea</option>
+          <option value="ID">🇮🇩 Indonesia</option>
+          <option value="MX">🇲🇽 Mexico</option>
+          <option value="RU">🇷🇺 Russia</option>
+          <option value="FR">🇫🇷 France</option>
+          <option value="CA">🇨🇦 Canada</option>
+          <option value="AU">🇦🇺 Australia</option>
+          <option value="SG">🇸🇬 Singapore</option>
+          <option value="NG">🇳🇬 Nigeria</option>
+          <option value="BD">🇧🇩 Bangladesh</option>
+          <option value="PK">🇵🇰 Pakistan</option>
+          <option value="VN">🇻🇳 Vietnam</option>
+        </select>
+        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-400 mr-1.5"></span>Country B
+      </label>
+      <div class="relative">
+        <select id="country2Select"
+          class="w-full appearance-none bg-slate-900/80 border border-slate-700/60 text-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 cursor-pointer font-sans">
+          <option value="IN">🇮🇳 India</option>
+          <option value="US" selected>🇺🇸 United States</option>
+          <option value="CN">🇨🇳 China</option>
+          <option value="GB">🇬🇧 United Kingdom</option>
+          <option value="DE">🇩🇪 Germany</option>
+          <option value="JP">🇯🇵 Japan</option>
+          <option value="BR">🇧🇷 Brazil</option>
+          <option value="ZA">🇿🇦 South Africa</option>
+          <option value="KR">🇰🇷 South Korea</option>
+          <option value="ID">🇮🇩 Indonesia</option>
+          <option value="MX">🇲🇽 Mexico</option>
+          <option value="RU">🇷🇺 Russia</option>
+          <option value="FR">🇫🇷 France</option>
+          <option value="CA">🇨🇦 Canada</option>
+          <option value="AU">🇦🇺 Australia</option>
+          <option value="SG">🇸🇬 Singapore</option>
+          <option value="NG">🇳🇬 Nigeria</option>
+          <option value="BD">🇧🇩 Bangladesh</option>
+          <option value="PK">🇵🇰 Pakistan</option>
+          <option value="VN">🇻🇳 Vietnam</option>
+        </select>
+        <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3 mt-4">
+    <button id="fetchBtn"
+      class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-sm font-semibold transition-all disabled:bg-slate-700 disabled:cursor-not-allowed">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Fetch &amp; Plot
+    </button>
+    <span id="statusMsg" class="text-xs font-mono text-slate-500"></span>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+  <div class="xl:col-span-2">
+    <div class="glass rounded-2xl p-5 border border-slate-700/30 relative" style="min-height:420px">
+      <div id="chartLoader" class="absolute inset-0 rounded-2xl bg-slate-950/80 z-10 flex flex-col items-center justify-center gap-3 hidden">
+        <div class="w-8 h-8 border-2 border-sky-400/30 border-t-sky-400 rounded-full animate-spin"></div>
+        <p class="text-xs font-mono text-slate-400">Fetching World Bank data...</p>
+      </div>
+      <div id="chartError" class="absolute inset-0 rounded-2xl z-10 flex flex-col items-center justify-center gap-3 hidden">
+        <svg class="w-10 h-10 text-red-400/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <p class="text-sm text-red-400" id="chartErrorMsg">Failed to fetch data.</p>
+        <button onclick="fetchAndRender()" class="text-xs text-sky-400 font-mono hover:underline">Retry</button>
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-semibold text-slate-200 text-sm" id="chartTitle">Select options and click Fetch</h2>
+        <div id="latestBadges" class="flex gap-2"></div>
+      </div>
+      <div style="height:340px; position:relative;">
+        <canvas id="marketChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-1 space-y-4">
+
+    <div class="glass rounded-xl p-4 border border-sky-500/15" id="statsCard1">
+      <p class="text-xs font-mono text-sky-400/80 uppercase tracking-wider mb-2" id="statsLabel1">Country A</p>
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">Latest Value</span>
+          <span class="text-sm font-mono font-bold text-sky-400" id="c1Latest">—</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">15Y Average</span>
+          <span class="text-sm font-mono text-slate-300" id="c1Avg">—</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">Peak</span>
+          <span class="text-sm font-mono text-emerald-400" id="c1Max">—</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">Trough</span>
+          <span class="text-sm font-mono text-red-400" id="c1Min">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass rounded-xl p-4 border border-emerald-500/15" id="statsCard2">
+      <p class="text-xs font-mono text-emerald-400/80 uppercase tracking-wider mb-2" id="statsLabel2">Country B</p>
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">Latest Value</span>
+          <span class="text-sm font-mono font-bold text-emerald-400" id="c2Latest">—</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">15Y Average</span>
+          <span class="text-sm font-mono text-slate-300" id="c2Avg">—</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">Peak</span>
+          <span class="text-sm font-mono text-emerald-400" id="c2Max">—</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500">Trough</span>
+          <span class="text-sm font-mono text-red-400" id="c2Min">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass rounded-xl p-4 border border-slate-700/20">
+      <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Data Source</p>
+      <p class="text-xs text-slate-400 leading-relaxed">Live data fetched directly from the <span class="text-sky-400">World Bank Open Data API</span>.Data may have a 1-2 year lag for final official figures.</p>
+      <p class="text-xs text-slate-600 mt-2 font-mono">api.worldbank.org/v2</p>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let chartInstance = null;
+
+  const COUNTRY_NAMES = {
+    IN:'India', US:'United States', CN:'China', GB:'United Kingdom',
+    DE:'Germany', JP:'Japan', BR:'Brazil', ZA:'South Africa',
+    KR:'South Korea', ID:'Indonesia', MX:'Mexico', RU:'Russia',
+    FR:'France', CA:'Canada', AU:'Australia', SG:'Singapore',
+    NG:'Nigeria', BD:'Bangladesh', PK:'Pakistan', VN:'Vietnam',
+  };
+
+  const METRIC_LABELS = {
+    'NY.GDP.MKTP.KD.ZG':   'GDP Growth Rate (%)',
+    'FP.CPI.TOTL.ZG':      'CPI Inflation (%)',
+    'SL.UEM.TOTL.ZS':      'Unemployment Rate (%)',
+    'FR.INR.RINR':         'Real Interest Rate (%)',
+    'BX.KLT.DINV.WD.GD.ZS':'Foreign Direct Investment (% GDP)',
+    'NE.EXP.GNFS.ZS':      'Exports (% GDP)',
+    'SP.POP.GROW':         'Population Growth (%)',
+    'IT.NET.USER.ZS':      'Internet Usage (%)'
+  };
+
+  // ── Fetch World Bank Data ────────────────────────────────
+  async function fetchWorldBank(indicator, countryCode) {
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 16;
+    const url = `https://api.worldbank.org/v2/country/${countryCode}/indicator/${indicator}?format=json&per_page=20&mrv=16&date=${startYear}:${currentYear}`;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`World Bank API error: ${res.status}`);
+    const json = await res.json();
+
+    if (!json || json.length < 2 || !json[1]) {
+      throw new Error(`No data returned for ${countryCode}`);
+    }
+
+    // Sort by year ascending, filter nulls
+    const entries = json[1]
+      .filter(d => d.value !== null)
+      .sort((a, b) => parseInt(a.date) - parseInt(b.date));
+
+    return entries;
+  }
+
+  // ── Compute Stats ────────────────────────────────────────
+  function computeStats(entries) {
+    if (!entries.length) return { latest: null, avg: null, max: null, min: null };
+    const vals = entries.map(e => e.value);
+    const latest = vals[vals.length - 1];
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const max = Math.max(...vals);
+    const min = Math.min(...vals);
+    return { latest, avg, max, min };
+  }
+
+  // ── Update Stats Panel ───────────────────────────────────
+  function updateStats(prefix, label, stats) {
+    document.getElementById(`${prefix}Label1`).textContent = label;
+    document.getElementById(`${prefix}Latest`).textContent = stats.latest !== null ? `${stats.latest.toFixed(2)}%` : '—';
+    document.getElementById(`${prefix}Avg`).textContent    = stats.avg    !== null ? `${stats.avg.toFixed(2)}%`    : '—';
+    document.getElementById(`${prefix}Max`).textContent    = stats.max    !== null ? `${stats.max.toFixed(2)}%`    : '—';
+    document.getElementById(`${prefix}Min`).textContent    = stats.min    !== null ? `${stats.min.toFixed(2)}%`    : '—';
+  }
+
+  // ── Main Fetch & Render ──────────────────────────────────
+  async function fetchAndRender() {
+    const indicator = document.getElementById('metricSelect').value;
+    const c1Code    = document.getElementById('country1Select').value;
+    const c2Code    = document.getElementById('country2Select').value;
+    const metricLabel = METRIC_LABELS[indicator];
+
+    const loader   = document.getElementById('chartLoader');
+    const errorEl  = document.getElementById('chartError');
+    const fetchBtn = document.getElementById('fetchBtn');
+    const statusEl = document.getElementById('statusMsg');
+
+    // Show loader
+    loader.classList.remove('hidden');
+    errorEl.classList.add('hidden');
+    fetchBtn.disabled = true;
+    statusEl.textContent = 'Querying World Bank API...';
+
+    try {
+      const [data1, data2] = await Promise.all([
+        fetchWorldBank(indicator, c1Code),
+        fetchWorldBank(indicator, c2Code),
+      ]);
+
+      // Merge years
+      const allYears = [...new Set([
+        ...data1.map(d => d.date),
+        ...data2.map(d => d.date),
+      ])].sort();
+
+      const map1 = Object.fromEntries(data1.map(d => [d.date, d.value]));
+      const map2 = Object.fromEntries(data2.map(d => [d.date, d.value]));
+
+      const vals1 = allYears.map(y => map1[y] ?? null);
+      const vals2 = allYears.map(y => map2[y] ?? null);
+
+      // Destroy old chart
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+      // Build chart
+      const ctx = document.getElementById('marketChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: allYears,
+          datasets: [
+            {
+              label: COUNTRY_NAMES[c1Code] || c1Code,
+              data: vals1,
+              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(56,189,248,0.08)',
+              borderWidth: 2.5,
+              pointBackgroundColor: '#38bdf8',
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              tension: 0.35,
+              fill: true,
+              spanGaps: true,
+            },
+            {
+              label: COUNTRY_NAMES[c2Code] || c2Code,
+              data: vals2,
+              borderColor: '#34d399',
+              backgroundColor: 'rgba(52,211,153,0.06)',
+              borderWidth: 2.5,
+              pointBackgroundColor: '#34d399',
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              tension: 0.35,
+              fill: true,
+              spanGaps: true,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#94a3b8',
+                font: { family: "'Inter', sans-serif", size: 12 },
+                boxWidth: 14,
+                padding: 18,
+                usePointStyle: true,
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15,23,42,0.95)',
+              borderColor: 'rgba(56,189,248,0.2)',
+              borderWidth: 1,
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              titleFont: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' },
+              callbacks: {
+                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(2) + '%' : 'N/A'}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(148,163,184,0.06)' },
+              ticks: { color: '#64748b', font: { family: "'JetBrains Mono', monospace", size: 11 } },
+            },
+            y: {
+              grid: { color: 'rgba(148,163,184,0.06)' },
+              ticks: {
+                color: '#64748b',
+                font: { family: "'JetBrains Mono', monospace", size: 11 },
+                callback: v => v + '%'
+              },
+            }
+          }
+        }
+      });
+
+      // Update title
+      document.getElementById('chartTitle').textContent =
+        `${metricLabel}: ${COUNTRY_NAMES[c1Code]} vs ${COUNTRY_NAMES[c2Code]}`;
+
+      // Update stats
+      const s1 = computeStats(data1);
+      const s2 = computeStats(data2);
+      document.getElementById('statsLabel1').textContent = COUNTRY_NAMES[c1Code];
+      document.getElementById('statsLabel2').textContent = COUNTRY_NAMES[c2Code];
+      document.getElementById('c1Latest').textContent = s1.latest !== null ? `${s1.latest.toFixed(2)}%` : '—';
+      document.getElementById('c1Avg').textContent    = s1.avg    !== null ? `${s1.avg.toFixed(2)}%`    : '—';
+      document.getElementById('c1Max').textContent    = s1.max    !== null ? `${s1.max.toFixed(2)}%`    : '—';
+      document.getElementById('c1Min').textContent    = s1.min    !== null ? `${s1.min.toFixed(2)}%`    : '—';
+      document.getElementById('c2Latest').textContent = s2.latest !== null ? `${s2.latest.toFixed(2)}%` : '—';
+      document.getElementById('c2Avg').textContent    = s2.avg    !== null ? `${s2.avg.toFixed(2)}%`    : '—';
+      document.getElementById('c2Max').textContent    = s2.max    !== null ? `${s2.max.toFixed(2)}%`    : '—';
+      document.getElementById('c2Min').textContent    = s2.min    !== null ? `${s2.min.toFixed(2)}%`    : '—';
+
+      statusEl.textContent = `✓ ${data1.length + data2.length} data points loaded`;
+
+    } catch (err) {
+      errorEl.classList.remove('hidden');
+      document.getElementById('chartErrorMsg').textContent = `Error: ${err.message}`;
+      statusEl.textContent = 'Fetch failed.';
+      console.error('World Bank fetch error:', err);
+    } finally {
+      loader.classList.add('hidden');
+      fetchBtn.disabled = false;
+    }
+  }
+
+  // Auto-fetch on load
+  document.getElementById('fetchBtn').addEventListener('click', fetchAndRender);
+  window.addEventListener('load', fetchAndRender);
+</script>
+{% endblock %}
