@@ -199,7 +199,7 @@ def api_chat():
 
         # Fire the HTTP request directly at Google
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}"
-        resp = requests.post(url, headers={'Content-Type': 'application/json'}, json=request_data)
+        resp = requests.post(url, headers={'Content-Type': 'application/json'}, json=request_data, timeout=25)
         resp_json = resp.json()
 
         # Catch actual API errors (like quota limits or bad keys)
@@ -212,6 +212,9 @@ def api_chat():
         ai_text = resp_json['candidates'][0]['content']['parts'][0]['text']
         return jsonify({"response": ai_text})
 
+    except requests.exceptions.Timeout:
+        print("❌ Server Error: Google API Timeout")
+        return jsonify({"error": "The AI is taking too long to respond. Please try again."}), 504
     except Exception as e:
         print(f"❌ Server Crash in /api/chat: {type(e).__name__}: {e}")
         return jsonify({"error": f"Internal Server Error: {str(e)}"}), 500
