@@ -127,13 +127,14 @@
       const dateObj = new Date(isoString);
       
       // 3. Format it beautifully
+      // 3. Format it beautifully
       return dateObj.toLocaleString('en-IN', {
           day: '2-digit',
           month: 'short',
           year: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-          hour12: false
+          hour12: true   // <--- Switched to true for AM/PM format
       }) + ' IST';
     } catch {
       return timeStr;
@@ -170,7 +171,7 @@
             </span>
             <div class="text-right">
               <span class="text-xs font-mono text-slate-500">${a.source}</span>
-              ${a.time ? `<p class="text-xs text-slate-700 font-mono">${formatTime(a.time)}</p>` : ''}
+          
             </div>
           </div>
 
