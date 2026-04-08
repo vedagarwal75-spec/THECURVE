@@ -9,7 +9,7 @@ import requests
 import time 
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-
+from datetime import datetime
 # --- FORCE LOAD THE .ENV FILE ---
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
@@ -262,17 +262,46 @@ def api_news():
 
         articles = []
         for item in data["articles"]:
+            title = item.get("title", "Untitled")
             summary = item.get("description", "No summary available.")
             if len(summary) > 220:
                 summary = summary[:217] + "..."
 
+            # --- 1. THE CUSTOM SENTIMENT ENGINE ---
+            text_to_analyze = (title + " " + summary).lower()
+            
+            bullish_words = ['ups', 'growth', 'ease', 'surge', 'gain', 'boom', 'positive', 'upward', 'rise', 'record high', 'expansion']
+            bearish_words = ['warns', 'conflict', 'inflation', 'risk', 'lower', 'decline', 'fall', 'drop', 'contraction', 'deficit', 'crisis', 'slowdown']
+
+            bull_score = sum(1 for word in bullish_words if word in text_to_analyze)
+            bear_score = sum(1 for word in bearish_words if word in text_to_analyze)
+
+            if bull_score > bear_score:
+                sentiment = "Bullish"
+            elif bear_score > bull_score:
+                sentiment = "Bearish"
+            else:
+                sentiment = "Neutral"
+
+            # --- 2. THE DATE FIX (Fixes the "undefined" UI bug) ---
+            raw_date = item.get("publishedAt", "")
+            try:
+                # GNews gives dates like: 2024-04-10T09:00:00Z
+                parsed_date = datetime.strptime(raw_date, "%Y-%m-%dT%H:%M:%SZ")
+                # We format it to look clean for your terminal: "10 Apr 2026, 09:00"
+                clean_time = parsed_date.strftime("%d %b %Y, %H:%M")
+            except Exception:
+                # If parsing fails, just use the raw string
+                clean_time = raw_date
+
+            # --- 3. APPEND TO LIST ---
             articles.append({
-                "title": item.get("title", "Untitled"),
+                "title": title,
                 "summary": summary,
                 "source": item["source"].get("name", "Unknown"),
                 "url": item.get("url", "#"),
-                "time": item.get("publishedAt", ""),
-                "sentiment": "Neutral" # GNews lacks sentiment, so we default to Neutral to protect your UI
+                "time": clean_time,
+                "sentiment": sentiment 
             })
 
         # 3. Lock it in the cache
