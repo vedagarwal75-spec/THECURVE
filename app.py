@@ -6,6 +6,7 @@ Backend: Flask + Direct Gemini REST API + Alpha Vantage News API
 import os
 import json
 import requests
+import time 
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 
@@ -98,7 +99,7 @@ MOCK_NEWS_DATA = [
         "summary": "The Reserve Bank of India's Monetary Policy Committee voted 5-1 to hold the benchmark repo rate steady at 6.5%, citing persistent food inflation and global commodity price uncertainty as key risks to its 4% CPI target.",
         "source": "The Economic Times",
         "url": "#",
-        "time": "20241215T090000",
+        "time": "20260410T090000",
         "sentiment": "Neutral"
     },
     {
@@ -106,7 +107,7 @@ MOCK_NEWS_DATA = [
         "summary": "The International Monetary Fund has revised India's GDP growth forecast upward to 7.2% for fiscal year 2025, citing robust domestic consumption, strong manufacturing PMI data, and accelerating capital expenditure by the Union government.",
         "source": "Bloomberg India",
         "url": "#",
-        "time": "20241214T113000",
+        "time": "20260410T090000",
         "sentiment": "Bullish"
     },
     {
@@ -114,7 +115,7 @@ MOCK_NEWS_DATA = [
         "summary": "Fed Chair Jerome Powell indicated at the December FOMC press conference that the pace of rate reductions would be more gradual than previously projected, pointing to a resilient labour market and sticky services inflation above the 2% target.",
         "source": "Reuters",
         "url": "#",
-        "time": "20241213T210000",
+        "time": "20260410T090000",
         "sentiment": "Bearish"
     }
 ]
@@ -220,8 +221,23 @@ def api_chat():
         return jsonify({"error": f"Internal Server Error: {str(e)}"}), 500
 
 
+# ============================================================
+#  THE SHIELD: Memory Cache to protect API limits
+# ============================================================
+cached_news_data = None
+last_news_fetch_time = 0
+
 @app.route("/api/news", methods=["GET"])
 def api_news():
+    global cached_news_data, last_news_fetch_time
+    
+    # 1. Check if we have cached news from less than 60 minutes ago (3600 seconds)
+    current_time = time.time()
+    if cached_news_data is not None and (current_time - last_news_fetch_time < 3600):
+        print("🛡️ Render/Browser refreshed! Serving news from CACHE. (0 API credits used)")
+        return jsonify(cached_news_data)
+
+    # 2. If cache is empty or old, spend 1 API request
     try:
         if not ALPHA_VANTAGE_API_KEY or ALPHA_VANTAGE_API_KEY == "YOUR_ALPHA_VANTAGE_API_KEY_HERE":
             raise ValueError("Alpha Vantage API key not configured. Serving mock data.")
@@ -235,6 +251,7 @@ def api_news():
             "&sort=LATEST"
         )
 
+        print("📡 Cache empty. Making ONE careful request to Alpha Vantage...")
         resp = requests.get(av_url, timeout=12)
         resp.raise_for_status()
         data = resp.json()
@@ -271,11 +288,15 @@ def api_news():
                 "sentiment": sentiment
             })
 
-        print(f"✅ Alpha Vantage: Served {len(articles)} live articles.")
+        # 3. LOCK IT IN THE CACHE
+        cached_news_data = articles
+        last_news_fetch_time = current_time
+
+        print(f"✅ Successfully fetched and CACHED {len(articles)} live articles.")
         return jsonify(articles)
 
     except Exception as e:
-        print(f"⚠️  Alpha Vantage API Error: {type(e).__name__}: {e}")
+        print(f"⚠️ Alpha Vantage API Error: {type(e).__name__}: {e}")
         print("   → Serving high-quality mock news data as fallback.")
         return jsonify(MOCK_NEWS_DATA)
 
