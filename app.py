@@ -227,76 +227,63 @@ def api_chat():
 cached_news_data = None
 last_news_fetch_time = 0
 
+# ============================================================
+#  THE SHIELD: Memory Cache (Now using GNews)
+# ============================================================
+cached_news_data = None
+last_news_fetch_time = 0
+
 @app.route("/api/news", methods=["GET"])
 def api_news():
     global cached_news_data, last_news_fetch_time
     
-    # 1. Check if we have cached news from less than 60 minutes ago (3600 seconds)
+    # 1. Check the 60-minute cache
     current_time = time.time()
     if cached_news_data is not None and (current_time - last_news_fetch_time < 3600):
-        print("🛡️ Render/Browser refreshed! Serving news from CACHE. (0 API credits used)")
+        print("🛡️ Render/Browser refreshed! Serving news from CACHE.")
         return jsonify(cached_news_data)
 
-    # 2. If cache is empty or old, spend 1 API request
+    # 2. Make the request to GNews
     try:
-        if not ALPHA_VANTAGE_API_KEY or ALPHA_VANTAGE_API_KEY == "YOUR_ALPHA_VANTAGE_API_KEY_HERE":
-            raise ValueError("Alpha Vantage API key not configured. Serving mock data.")
+        api_key = os.getenv("GNEWS_API_KEY")
+        if not api_key:
+            raise ValueError("GNews API key not configured. Serving mock data.")
 
-        av_url = (
-            "https://www.alphavantage.co/query"
-            "?function=NEWS_SENTIMENT"
-            "&topics=economy_macro"
-            f"&apikey={ALPHA_VANTAGE_API_KEY}"
-            "&limit=12"
-            "&sort=LATEST"
-        )
+        # Searching specifically for macroeconomic and Indian context
+        gnews_url = f"https://gnews.io/api/v4/search?q=macroeconomics OR economy OR RBI&lang=en&country=in&max=10&apikey={api_key}"
 
-        print("📡 Cache empty. Making ONE careful request to Alpha Vantage...")
-        resp = requests.get(av_url, timeout=12)
+        print("📡 Cache empty. Making ONE careful request to GNews...")
+        resp = requests.get(gnews_url, timeout=12)
         resp.raise_for_status()
         data = resp.json()
 
-        if "feed" not in data:
-            error_msg = data.get("Note") or data.get("Information") or "Unexpected API response structure."
-            raise ValueError(f"Alpha Vantage feed missing: {error_msg}")
+        if "articles" not in data:
+            raise ValueError(f"GNews feed missing: {data}")
 
         articles = []
-        for item in data["feed"][:12]:
-            raw_score = item.get("overall_sentiment_score", 0)
-            try:
-                score = float(raw_score)
-            except (TypeError, ValueError):
-                score = 0.0
-
-            if score >= 0.15:
-                sentiment = "Bullish"
-            elif score <= -0.15:
-                sentiment = "Bearish"
-            else:
-                sentiment = "Neutral"
-
-            summary = item.get("summary", "No summary available.")
+        for item in data["articles"]:
+            summary = item.get("description", "No summary available.")
             if len(summary) > 220:
                 summary = summary[:217] + "..."
 
             articles.append({
                 "title": item.get("title", "Untitled"),
                 "summary": summary,
-                "source": item.get("source", "Unknown"),
+                "source": item["source"].get("name", "Unknown"),
                 "url": item.get("url", "#"),
-                "time": item.get("time_published", ""),
-                "sentiment": sentiment
+                "time": item.get("publishedAt", ""),
+                "sentiment": "Neutral" # GNews lacks sentiment, so we default to Neutral to protect your UI
             })
 
-        # 3. LOCK IT IN THE CACHE
+        # 3. Lock it in the cache
         cached_news_data = articles
         last_news_fetch_time = current_time
 
-        print(f"✅ Successfully fetched and CACHED {len(articles)} live articles.")
+        print(f"✅ Successfully fetched and CACHED {len(articles)} live articles from GNews.")
         return jsonify(articles)
 
     except Exception as e:
-        print(f"⚠️ Alpha Vantage API Error: {type(e).__name__}: {e}")
+        print(f"⚠️ GNews API Error: {type(e).__name__}: {e}")
         print("   → Serving high-quality mock news data as fallback.")
         return jsonify(MOCK_NEWS_DATA)
 
