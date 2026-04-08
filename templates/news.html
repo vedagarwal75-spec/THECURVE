@@ -117,16 +117,24 @@
 
   // ── Format Time ──────────────────────────────────────────
   function formatTime(timeStr) {
-    if (!timeStr || timeStr.length < 8) return '';
+    if (!timeStr || timeStr.length < 14) return '';
     try {
-      // Format: YYYYMMDDTHHMMSS
-      const year  = timeStr.substring(0, 4);
-      const month = timeStr.substring(4, 6);
-      const day   = timeStr.substring(6, 8);
-      const hour  = timeStr.substring(9, 11);
-      const min   = timeStr.substring(11, 13);
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      return `${day} ${months[parseInt(month)-1]} ${year}, ${hour}:${min}`;
+      // 1. Rebuild the string into a standard format with a "Z" at the end (Z means UTC)
+      // Converts "20260408T090000" -> "2026-04-08T09:00:00Z"
+      const isoString = `${timeStr.substring(0,4)}-${timeStr.substring(4,6)}-${timeStr.substring(6,8)}T${timeStr.substring(9,11)}:${timeStr.substring(11,13)}:${timeStr.substring(13,15)}Z`;
+      
+      // 2. JavaScript automatically converts "Z" time into your computer's local time!
+      const dateObj = new Date(isoString);
+      
+      // 3. Format it beautifully
+      return dateObj.toLocaleString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+      }) + ' IST';
     } catch {
       return timeStr;
     }

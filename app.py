@@ -9,7 +9,7 @@ import requests
 import time 
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime , timedelta
 # --- FORCE LOAD THE .ENV FILE ---
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
@@ -286,12 +286,10 @@ def api_news():
             # --- 2. THE DATE FIX (Fixes the "undefined" UI bug) ---
             raw_date = item.get("publishedAt", "")
             try:
-                # GNews gives dates like: 2024-04-10T09:00:00Z
                 parsed_date = datetime.strptime(raw_date, "%Y-%m-%dT%H:%M:%SZ")
-                # We format it to look clean for your terminal: "10 Apr 2026, 09:00"
-                clean_time = parsed_date.strftime("%d %b %Y, %H:%M")
+                # Format exactly like Alpha Vantage (YYYYMMDDTHHMMSS) so frontend JS doesn't break
+                clean_time = parsed_date.strftime("%Y%m%dT%H%M%S")
             except Exception:
-                # If parsing fails, just use the raw string
                 clean_time = raw_date
 
             # --- 3. APPEND TO LIST ---
