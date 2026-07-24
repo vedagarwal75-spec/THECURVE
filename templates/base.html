@@ -9,32 +9,9 @@
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dfae44' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17c4-9 8-9 12-4s5 2 6-3'/%3E%3C/svg%3E" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['Newsreader', 'Georgia', 'serif'],
-            sans:    ['Inter', 'system-ui', 'sans-serif'],
-            mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-          },
-          colors: {
-            ink:   { 950:'#080B0F', 900:'#0B0F14', 850:'#0F141A', 800:'#131A22', 700:'#1B242E' },
-            paper: { DEFAULT:'#ECEAE6', dim:'#AEB7C2', mute:'#7C8794', faint:'#5A6470' },
-            gold:  { DEFAULT:'#DFAE44', soft:'#F0CB7D' },
-            sea:   { DEFAULT:'#7FA8D9' },
-            up:    { DEFAULT:'#6BBF8A' },
-            down:  { DEFAULT:'#D9705F' },
-          },
-          animation: { 'marquee': 'marquee 45s linear infinite' },
-          keyframes: {
-            marquee: { '0%': { transform:'translateX(0)' }, '100%': { transform:'translateX(-50%)' } },
-          },
-        }
-      }
-    }
-  </script>
+  <!-- Styles are pre-built into the project (see tailwind.config.js), so the
+       layout never depends on a CDN being reachable. -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

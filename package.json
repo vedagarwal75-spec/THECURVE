@@ -1,0 +1,11 @@
+{
+  "name": "the-curve",
+  "private": true,
+  "description": "Stylesheet build for The Curve (Tailwind -> static/app.css)",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i src/input.css -o static/app.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

@@ -46,6 +46,19 @@ Open <http://127.0.0.1:5000> in your browser.
 | `FLASK_SECRET_KEY` | optional | Flask session secret |
 | `FLASK_DEBUG` | optional | `1` enables debug mode locally; keep `0` for demos |
 
+## Styling
+
+The stylesheet is **pre-built into the repo** at `static/app.css`, so the site
+renders correctly even if a CDN is blocked or unreachable. You only need to
+rebuild it if you add new CSS classes to a template:
+
+```bash
+npm install && npm run build:css
+```
+
+Classes generated dynamically by Jinja (e.g. `text-{{ tone }}`) are listed in
+the `safelist` in `tailwind.config.js` — add to it if you introduce more.
+
 ## Notes
 
 - One place defines every headline macro number (`MACRO` in `app.py`), so the
