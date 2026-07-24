@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}The Curve{% endblock %} — Economic Intelligence</title>
+  <meta name="description" content="The Curve — an economic intelligence platform: an AI tutor, global market data, a policy simulator and a macro news terminal." />
+  <meta name="theme-color" content="#0B0F14" />
+  <title>{% block title %}The Curve{% endblock %} · The Curve</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dfae44' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17c4-9 8-9 12-4s5 2 6-3'/%3E%3C/svg%3E" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -11,28 +15,22 @@
       theme: {
         extend: {
           fontFamily: {
-            mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
-            sans: ['"Inter"', 'system-ui', 'sans-serif'],
-            display: ['"Space Grotesk"', 'sans-serif'],
+            display: ['Newsreader', 'Georgia', 'serif'],
+            sans:    ['Inter', 'system-ui', 'sans-serif'],
+            mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
           },
           colors: {
-            curve: {
-              blue:  '#38bdf8',
-              green: '#34d399',
-              red:   '#f87171',
-              gold:  '#fbbf24',
-            }
+            ink:   { 950:'#080B0F', 900:'#0B0F14', 850:'#0F141A', 800:'#131A22', 700:'#1B242E' },
+            paper: { DEFAULT:'#ECEAE6', dim:'#AEB7C2', mute:'#7C8794', faint:'#5A6470' },
+            gold:  { DEFAULT:'#DFAE44', soft:'#F0CB7D' },
+            sea:   { DEFAULT:'#7FA8D9' },
+            up:    { DEFAULT:'#6BBF8A' },
+            down:  { DEFAULT:'#D9705F' },
           },
-          animation: {
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
-            'fade-in': 'fadeIn 0.4s ease-out',
-          },
+          animation: { 'marquee': 'marquee 45s linear infinite' },
           keyframes: {
-            fadeIn: {
-              '0%':   { opacity: '0', transform: 'translateY(8px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            }
-          }
+            marquee: { '0%': { transform:'translateX(0)' }, '100%': { transform:'translateX(-50%)' } },
+          },
         }
       }
     }
@@ -40,129 +38,170 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 
   <style>
     :root {
-      --glass-bg:     rgba(15, 23, 42, 0.65);
-      --glass-border: rgba(56, 189, 248, 0.12);
-      --glass-blur:   12px;
-      --glow-blue:    0 0 20px rgba(56, 189, 248, 0.25);
-      --glow-green:   0 0 20px rgba(52, 211, 153, 0.20);
+      --bg:      #0B0F14;
+      --surface: rgba(255,255,255,0.024);
+      --line:    rgba(255,255,255,0.075);
+      --line-2:  rgba(255,255,255,0.14);
     }
-    html { font-family: 'Inter', sans-serif; }
+    html { font-family:'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
     body {
-      background-color: #020617;
-      background-image:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,0.06) 0%, transparent 60%),
-        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230f172a' fill-opacity='0.8'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background-color: var(--bg);
+      background-image: radial-gradient(ellipse 70% 40% at 50% -8%, rgba(223,174,68,0.055) 0%, transparent 65%);
+      background-repeat: no-repeat;
       min-height: 100vh;
-      color: #e2e8f0;
+      color: #ECEAE6;
     }
-    .glass {
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--glass-blur));
-      -webkit-backdrop-filter: blur(var(--glass-blur));
-      border: 1px solid var(--glass-border);
-    }
-    .glass-hover:hover {
-      border-color: rgba(56, 189, 248, 0.35);
-      box-shadow: var(--glow-blue);
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .nav-link {
-      position: relative;
-      transition: color 0.2s;
-    }
-    .nav-link::after {
-      content: '';
-      position: absolute;
-      bottom: -4px; left: 0;
-      width: 0; height: 2px;
-      background: #38bdf8;
-      transition: width 0.3s ease;
-    }
-    .nav-link:hover::after,
-    .nav-link.active::after { width: 100%; }
-    .nav-link.active { color: #38bdf8; }
 
-    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-    .scrollbar-thin::-webkit-scrollbar-track { background: rgba(15,23,42,0.3); }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.3); border-radius: 2px; }
-
-    /* Chart.js global overrides */
-    canvas { max-width: 100%; }
-
-    /* Markdown rendered content */
-    .md-content h2 { font-size:1.15rem; font-weight:700; color:#38bdf8; margin:1.1rem 0 0.4rem; font-family:'Space Grotesk',sans-serif; }
-    .md-content h3 { font-size:0.95rem; font-weight:600; color:#7dd3fc; margin:0.8rem 0 0.3rem; }
-    .md-content p  { color:#cbd5e1; line-height:1.7; margin-bottom:0.6rem; font-size:0.92rem; }
-    .md-content strong { color:#f1f5f9; font-weight:600; }
-    .md-content em { color:#94a3b8; }
-    .md-content ul { list-style:disc; padding-left:1.4rem; color:#cbd5e1; font-size:0.9rem; margin-bottom:0.5rem; }
-    .md-content li { margin-bottom:0.25rem; line-height:1.6; }
-    .md-content blockquote { border-left:3px solid #38bdf8; padding-left:1rem; color:#94a3b8; font-style:italic; margin:0.8rem 0; background:rgba(56,189,248,0.05); border-radius:0 4px 4px 0; padding:0.6rem 1rem; }
-    .md-content code { font-family:'JetBrains Mono',monospace; background:rgba(56,189,248,0.1); color:#38bdf8; padding:2px 6px; border-radius:4px; font-size:0.83rem; }
-    .md-content pre { background:rgba(2,6,23,0.8); border:1px solid rgba(56,189,248,0.15); border-radius:8px; padding:1rem; overflow-x:auto; margin:0.8rem 0; }
-    .md-content pre code { background:none; padding:0; }
-
-    @keyframes fadeIn {
-      from { opacity:0; transform:translateY(8px); }
-      to   { opacity:1; transform:translateY(0); }
+    /* Surfaces — hairline borders, no heavy glow */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
     }
-    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+    .card-hover { transition: border-color .25s ease, background-color .25s ease, transform .25s ease; }
+    .card-hover:hover { border-color: var(--line-2); background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+    .rule { height:1px; background: var(--line); }
+
+    /* Numerals: aligned, tight — reads as data, not decoration */
+    .num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .label {
+      font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:.13em;
+      text-transform:uppercase; color:#7C8794;
+    }
+
+    /* Nav */
+    .nav-link { position:relative; color:#AEB7C2; transition:color .2s; }
+    .nav-link:hover { color:#ECEAE6; }
+    .nav-link.active { color:#ECEAE6; }
+    .nav-link.active::after {
+      content:''; position:absolute; left:12px; right:12px; bottom:-19px; height:1.5px; background:#DFAE44;
+    }
+
+    ::selection { background: rgba(223,174,68,0.28); color:#fff; }
+    :focus-visible { outline:2px solid rgba(223,174,68,.65); outline-offset:2px; border-radius:6px; }
+
+    .scrollbar-thin::-webkit-scrollbar { width:6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background:transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background:rgba(255,255,255,.13); border-radius:3px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,.22); }
+
+    canvas { max-width:100%; }
+
+    /* Rendered markdown (AI tutor) */
+    .md-content > *:first-child { margin-top:0; }
+    .md-content h2 { font-family:'Newsreader',serif; font-size:1.25rem; font-weight:600; color:#F0CB7D; margin:1.15rem 0 .45rem; letter-spacing:-.01em; }
+    .md-content h3 { font-size:.9rem; font-weight:600; color:#ECEAE6; margin:.9rem 0 .3rem; }
+    .md-content p  { color:#C6CDD6; line-height:1.75; margin-bottom:.65rem; font-size:.925rem; }
+    .md-content strong { color:#ECEAE6; font-weight:600; }
+    .md-content em { color:#AEB7C2; }
+    .md-content ul { list-style:disc; padding-left:1.35rem; color:#C6CDD6; font-size:.9rem; margin-bottom:.6rem; }
+    .md-content ol { list-style:decimal; padding-left:1.35rem; color:#C6CDD6; font-size:.9rem; margin-bottom:.6rem; }
+    .md-content li { margin-bottom:.3rem; line-height:1.7; }
+    .md-content blockquote { border-left:2px solid #DFAE44; color:#AEB7C2; font-style:italic; margin:.85rem 0; background:rgba(223,174,68,.05); border-radius:0 6px 6px 0; padding:.6rem .95rem; }
+    .md-content code { font-family:'JetBrains Mono',monospace; background:rgba(255,255,255,.06); color:#F0CB7D; padding:2px 6px; border-radius:4px; font-size:.82rem; }
+    .md-content pre { background:rgba(0,0,0,.35); border:1px solid var(--line); border-radius:10px; padding:.9rem; overflow-x:auto; margin:.8rem 0; }
+    .md-content pre code { background:none; padding:0; color:#C6CDD6; }
+    .md-content table { width:100%; border-collapse:collapse; margin:.8rem 0; font-size:.85rem; }
+    .md-content th, .md-content td { border:1px solid var(--line); padding:.45rem .6rem; text-align:left; color:#C6CDD6; }
+    .md-content th { color:#ECEAE6; font-weight:600; background:rgba(255,255,255,.03); }
+
+    @keyframes riseIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .rise { animation: riseIn .5s cubic-bezier(.2,.7,.3,1) both; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+    }
   </style>
 
   {% block head %}{% endblock %}
 </head>
-<body class="bg-slate-950 text-slate-200">
+<body>
 
-  <nav class="sticky top-0 z-50 glass border-b border-sky-900/20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-14">
+  <header class="sticky top-0 z-50 border-b border-white/[.075] bg-[#0B0F14]/88 backdrop-blur-md">
+    <div class="max-w-[1180px] mx-auto px-5 sm:px-7">
+      <div class="flex items-center justify-between h-16">
 
-        <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-7 h-7 rounded bg-sky-400/10 border border-sky-400/30 flex items-center justify-center group-hover:bg-sky-400/20 transition-colors">
-            <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        <!-- Brand + student identity -->
+        <div class="flex items-center gap-3.5 min-w-0">
+          <a href="/" class="flex items-center gap-2.5 group shrink-0" aria-label="The Curve — home">
+            <svg class="w-[22px] h-[22px] text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 17c4-9 8-9 12-4s5 2 6-3"/>
             </svg>
+            <span class="font-display text-[20px] font-semibold tracking-[-.015em] leading-none text-paper group-hover:text-gold-soft transition-colors">
+              The Curve
+            </span>
+          </a>
+          <div class="hidden sm:block w-px h-7 bg-white/[.10]"></div>
+          <div class="hidden sm:block leading-tight min-w-0">
+            <p class="text-[12.5px] text-paper-dim font-medium truncate">{{ student.name }}</p>
+            <p class="label !text-[9.5px] !tracking-[.11em] truncate">{{ student.department }} · {{ student.roll }}</p>
           </div>
-          <span class="font-display font-700 text-base tracking-tight">
-            <span class="text-sky-400">THE</span><span class="text-slate-100"> CURVE -Ved Agarwal ECOA 279</span>
-          </span>
-        </a>
-
-        <div class="hidden md:flex items-center gap-1">
-          <a href="/"          class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/' %}active{% endif %}">Dashboard</a>
-          <a href="/ai"        class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/ai' %}active{% endif %}">AI Tutor</a>
-          <a href="/market"    class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/market' %}active{% endif %}">Markets</a>
-          <a href="/simulation" class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/simulation' %}active{% endif %}">Econ Lab</a>
-          <a href="/news"      class="nav-link px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-sky-400 rounded {% if request.path == '/news' %}active{% endif %}">News</a>
         </div>
 
-        <div class="flex items-center gap-2 font-mono text-xs text-slate-500">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-slow"></span>
-          <span class="hidden sm:inline">LIVE</span>
-        </div>
+        <!-- Desktop nav -->
+        <nav class="hidden md:flex items-center gap-1 text-[13.5px] font-medium">
+          <a href="/"           class="nav-link px-3 py-1.5 {% if request.path == '/' %}active{% endif %}" {% if request.path == '/' %}aria-current="page"{% endif %}>Dashboard</a>
+          <a href="/ai"         class="nav-link px-3 py-1.5 {% if request.path == '/ai' %}active{% endif %}" {% if request.path == '/ai' %}aria-current="page"{% endif %}>Tutor</a>
+          <a href="/market"     class="nav-link px-3 py-1.5 {% if request.path == '/market' %}active{% endif %}" {% if request.path == '/market' %}aria-current="page"{% endif %}>Markets</a>
+          <a href="/simulation" class="nav-link px-3 py-1.5 {% if request.path == '/simulation' %}active{% endif %}" {% if request.path == '/simulation' %}aria-current="page"{% endif %}>Policy Lab</a>
+          <a href="/news"       class="nav-link px-3 py-1.5 {% if request.path == '/news' %}active{% endif %}" {% if request.path == '/news' %}aria-current="page"{% endif %}>News</a>
+        </nav>
 
+        <button id="menuBtn" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-white/[.09] text-paper-dim hover:text-paper hover:border-white/20 transition-colors" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <svg id="iconOpen" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <svg id="iconClose" class="w-[18px] h-[18px] hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="mobileMenu" class="md:hidden hidden pb-3 space-y-0.5">
+        <p class="sm:hidden px-3 pt-1 pb-2 text-[12px] text-paper-mute">{{ student.name }} · {{ student.department }} · {{ student.roll }}</p>
+        {% for href, name in [('/','Dashboard'), ('/ai','Tutor'), ('/market','Markets'), ('/simulation','Policy Lab'), ('/news','News')] %}
+        <a href="{{ href }}" class="block px-3 py-2 rounded-lg text-[14px] {% if request.path == href %}bg-white/[.06] text-gold{% else %}text-paper-dim hover:bg-white/[.035]{% endif %}">{{ name }}</a>
+        {% endfor %}
       </div>
     </div>
-  </nav>
+  </header>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="max-w-[1180px] mx-auto px-5 sm:px-7 py-9">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="border-t border-slate-800/50 mt-16 py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
-      <p class="text-xs text-slate-600 font-mono">THE CURVE — Economic Intelligence Platform</p>
-      <p class="text-xs text-slate-700 font-mono">Powered by Gemini 1.5 Flash · World Bank API · Alpha Vantage</p>
+  <footer class="border-t border-white/[.06] mt-20">
+    <div class="max-w-[1180px] mx-auto px-5 sm:px-7 py-7 flex flex-col sm:flex-row justify-between items-center gap-2.5">
+      <p class="text-[12.5px] text-paper-mute">
+        <span class="font-display text-paper-dim">The Curve</span>
+        &nbsp;·&nbsp; {{ student.name }} &nbsp;·&nbsp; {{ student.department }} &nbsp;·&nbsp; {{ student.roll }}
+      </p>
+      <p class="label">Data · World Bank · GNews</p>
     </div>
   </footer>
+
+  <script>
+    // Mobile menu
+    (function () {
+      var btn = document.getElementById('menuBtn'), menu = document.getElementById('mobileMenu'),
+          o = document.getElementById('iconOpen'), c = document.getElementById('iconClose');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', function () {
+        var open = menu.classList.toggle('hidden') === false;
+        o.classList.toggle('hidden', open); c.classList.toggle('hidden', !open);
+        btn.setAttribute('aria-expanded', String(open));
+      });
+    })();
+
+    // Last-resort guard: a script error must never leave the page looking broken.
+    window.addEventListener('error', function (e) {
+      if (window.console && console.warn) console.warn('[The Curve] recovered from an error:', e.message);
+    });
+  </script>
 
   {% block scripts %}{% endblock %}
 </body>

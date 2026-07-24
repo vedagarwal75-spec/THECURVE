@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ code }}{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center text-center py-28">
+  <p class="label mb-5">Error {{ code }}</p>
+  <h1 class="font-display text-[40px] sm:text-[48px] leading-tight tracking-[-.025em] text-paper max-w-lg">
+    {{ message }}
+  </h1>
+  <p class="text-[14px] text-paper-mute mt-4 max-w-md leading-relaxed">
+    Nothing else is affected — head back to the dashboard and carry on.
+  </p>
+  <a href="/" class="mt-8 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gold text-ink-950 text-[13.5px] font-semibold hover:bg-gold-soft transition-colors">
+    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back to dashboard
+  </a>
+</div>
+{% endblock %}
